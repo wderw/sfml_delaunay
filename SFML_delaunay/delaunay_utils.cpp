@@ -67,6 +67,12 @@ edge::edge(vertex * v1, vertex * v2) : edge()
 	this->v2 = v2;
 }
 
+void edge::setOrigin(sf::Vector2f* origin)
+{
+	simplex_origin = origin;
+	circumcircle* c = new circumcircle(*simplex_origin, 1.0f);
+}
+
 void edge::setColor1(sf::Color c)
 {
 	color1 = c;
@@ -132,6 +138,11 @@ bool utils::same_halfspace_test(edge * f, vertex * p, sf::Vector2f &cp)
 	}
 }
 
+sf::Vector2f utils::triangle_centerofmass(vertex * a, vertex * b, vertex * c)
+{
+	return sf::Vector2f((a->position.x + b->position.x + c->position.x) / 3,
+		(a->position.y + b->position.y + c->position.y) / 3);
+}
 // patrz wikipedia: algorytm jarvisa
 std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 {
@@ -222,6 +233,47 @@ std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 		resultVector = previousVector;
 	}
 	return result;
+}
+
+void utils::make_simplex(edge * f, std::vector<vertex*>& pointset)
+{
+	float minDD = FLT_MAX;
+	vertex* best = nullptr;
+
+	for (int i = 0; i < pointset.size(); ++i)
+	{
+		vertex* p = pointset[i];
+
+		if (p == f->v1 || p == f->v2)
+		{
+			continue;
+		}
+
+		if (utils::same_halfspace_test(f, p, *f->simplex_origin))
+		{
+			continue;
+		}
+
+		float currentDD = utils::delaunay_distance(f, p);
+
+		if (currentDD < minDD)
+		{
+			minDD = currentDD;
+			best = p;
+		}
+	}
+
+	if (best != nullptr)
+	{
+		best->fillColor = sf::Color::Blue;
+
+		edge* e1 = new edge(f->v1, best);
+		edge* e2 = new edge(f->v2, best);
+
+		sf::Vector2f origin(utils::triangle_centerofmass(f->v1, f->v2, best));
+		e1->setOrigin(&origin);
+		e2->setOrigin(&origin);
+	}
 }
 
 void utils::dt_dewall(std::vector<vertex*>& pointset)
@@ -317,11 +369,22 @@ void utils::dt_dewall(std::vector<vertex*>& pointset)
 
 	utils::dt_bruteforce(pointset);
 
-	// generic simplex:
+	
+
+	/* generic simplex: */
 	edge* f = new edge(p1, p2);
 	edge* f2 = new edge(p2, p3);
 	edge* f3 = new edge(p3, p1);
 
+	f->setOrigin(&sf::Vector2f(utils::triangle_centerofmass(p1, p2, p3)));
+	f2->setOrigin(&sf::Vector2f(utils::triangle_centerofmass(p1, p2, p3)));
+	f3->setOrigin(&sf::Vector2f(utils::triangle_centerofmass(p1, p2, p3)));
+
+	utils::make_simplex(f, pointset);
+	utils::make_simplex(f2, pointset);
+	utils::make_simplex(f3, pointset);
+
+	/*
 	float minDD = FLT_MAX;
 	vertex* best = nullptr;
 
@@ -347,13 +410,19 @@ void utils::dt_dewall(std::vector<vertex*>& pointset)
 			best = p;
 		}
 	}
+
 	if(best != nullptr)
 	{ 
 		best->fillColor = sf::Color::Blue;
 
 		edge* e1 = new edge(p1, best);
 		edge* e2 = new edge(p2, best);
+
+		sf::Vector2f origin(utils::triangle_centerofmass(p1, p2, best));
+		e1->setOrigin(&origin);
+		e2->setOrigin(&origin);
 	}
+	*/
 }
 
 // funkcja delaunay distance (dd) zdefiniowana w publikacji algorytmu DeWall

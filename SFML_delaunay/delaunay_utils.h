@@ -47,6 +47,10 @@ public:
 	{
 		return sqrtf(vec->x*vec->x + vec->y*vec->y);
 	}
+	 
+	// srodek ciezkosci trojkata
+	static sf::Vector2f triangle_centerofmass(vertex* a, vertex* b, vertex* c);
+
 
 	// normalizacja
 	static inline sf::Vector2f vector_normalized(sf::Vector2f *original)
@@ -112,10 +116,11 @@ public:
 	// 3. algorytmy	
 	static void evaluate_triangle(int i, int j, int k, std::vector<vertex*>& pointset);	
 	static sf::Vector2f circumcenter(sf::Vector2f& a, sf::Vector2f& b, sf::Vector2f& c);
-	static std::vector<edge*> dt_bruteforce(std::vector<vertex*> &pointset);
-	static std::vector<edge*> convex_hull(std::vector<vertex*> &pointset);
+	static std::vector<edge*> dt_bruteforce(std::vector<vertex*> &pointset);	
 	static void dt_dewall(std::vector<vertex*>& pointset);
 	static float delaunay_distance(edge* f, vertex* p);
+	static std::vector<edge*> convex_hull(std::vector<vertex*> &pointset);
+	static void make_simplex(edge* f, std::vector<vertex*>& pointset);
 
 };
 
@@ -164,12 +169,15 @@ class edge : public IRenderable
 public:
 	vertex *v1, *v2;
 
+	sf::Vector2f* simplex_origin;
+
 	sf::Color color1;
 	sf::Color color2;
 
 	edge();
 	edge(vertex *v1, vertex *v2);
 
+	void setOrigin(sf::Vector2f*);
 	void setColor1(sf::Color);
 	void setColor2(sf::Color);
 	void setColor(sf::Color);
