@@ -114,10 +114,33 @@ bool utils::same_halfspace_test(edge * f, vertex * p, vertex * cp)
 	}
 }
 
+bool utils::same_halfspace_test(edge * f, vertex * p, sf::Vector2f &cp)
+{
+	sf::Vector2f v(f->v2->position.x - f->v1->position.x, f->v2->position.y - f->v1->position.y);
+	sf::Vector2f w(v.y, -v.x);
+
+	float result_p = utils::vector_dotproduct(&(p->position - f->v1->position), &w);
+	float result_cp = utils::vector_dotproduct(&(cp - f->v1->position), &w);
+
+	if (result_p * result_cp < 0)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
 // patrz wikipedia: algorytm jarvisa
 std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 {
 	std::vector<edge*> result;
+
+	if (pointset.size() == 0)
+	{
+		return result;
+	}
 
 	// find vertex with minimal y
 	float ymin;
@@ -136,7 +159,7 @@ std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 		}
 	}
 	// highlight it
-	min->fillColor = sf::Color::Yellow;
+	//min->fillColor = sf::Color::Yellow;
 	
 
 	current = min;
@@ -163,7 +186,7 @@ std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 			previousVector = v;
 		}
 	}	
-	best->fillColor = sf::Color::Cyan;	
+	//best->fillColor = sf::Color::Cyan;	
 	edge* e = new edge(current, best);
 	result.push_back(e);
 	current = best;
@@ -174,7 +197,7 @@ std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 	// wrap
 	while (best != min)
 	{
-		best->fillColor = sf::Color::Cyan;
+		//best->fillColor = sf::Color::Cyan;
 
 		for (int i = 0; i < pointset.size(); i++)
 		{
@@ -199,6 +222,167 @@ std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 		resultVector = previousVector;
 	}
 	return result;
+}
+
+void utils::dt_dewall(std::vector<vertex*>& pointset)
+{
+	float alfa = 500;
+	sf::Vector2f pos1(alfa, 0);
+	sf::Vector2f pos2(alfa, 900);
+	line* cuttingLine = new line(sf::Vertex(pos1, sf::Color::Cyan), sf::Vertex(pos2, sf::Color::Cyan));
+
+	std::vector<edge*> hull = utils::convex_hull(pointset);
+
+	float minDist1 = FLT_MAX;
+	float currentDistance;
+	vertex* currentVertex = nullptr,*p1 = nullptr;
+
+	// MakeFirstSimplex:
+	for (int i = 0; i < pointset.size(); ++i)
+	{
+		currentVertex = pointset[i];
+		currentDistance = fabs(currentVertex->position.x - alfa);
+
+		if (currentDistance < minDist1)
+		{
+			minDist1 = currentDistance;
+			p1 = currentVertex;
+		}
+	}
+	p1->fillColor = sf::Color::Green;
+
+	bool rightSide;
+	if (p1->position.x > alfa)
+	{
+		rightSide = true;
+	}
+	else
+	{
+		rightSide = false;
+	}
+
+
+
+	// znajdz p2 po drugiej stronie
+	minDist1 = FLT_MAX;
+	currentDistance = 0;
+	currentVertex = nullptr;
+	vertex* p2 = nullptr;
+
+	for (int i = 0; i < pointset.size(); ++i)
+	{
+		currentVertex = pointset[i];
+		currentDistance = utils::vector_magnitude(&(currentVertex->position - p1->position));
+
+		if (currentVertex->position.x - alfa < 0 && rightSide == false)
+		{
+			continue;
+		}
+		if (currentVertex->position.x - alfa >= 0 && rightSide == true)
+		{
+			continue;
+		}
+
+		if (currentDistance < minDist1)
+		{
+			minDist1 = currentDistance;
+			p2 = currentVertex;
+		}
+	}
+	p2->fillColor = sf::Color::Red;
+
+	// znajdz p3
+	float minRadius = FLT_MAX;
+	float currentRadius;
+	currentVertex = nullptr;
+	currentDistance = 0;
+	vertex* p3 = nullptr;
+	sf::Vector2f circumcenter;
+
+	for (int i = 0; i < pointset.size(); ++i)
+	{
+		currentVertex = pointset[i];
+		circumcenter = utils::circumcenter(p1->position, p2->position, currentVertex->position);
+		currentRadius = utils::vector_magnitude(&sf::Vector2f(circumcenter.x - p1->position.x, circumcenter.y - p1->position.y));
+
+		if (currentRadius < minRadius)
+		{
+			minRadius = currentRadius;
+			p3 = currentVertex;
+		}
+	}
+	p1->fillColor = sf::Color::Yellow;
+	p2->fillColor = sf::Color::White;
+	p3->fillColor = sf::Color::Cyan;
+
+	utils::dt_bruteforce(pointset);
+
+	// generic simplex:
+	edge* f = new edge(p1, p2);
+	edge* f2 = new edge(p2, p3);
+	edge* f3 = new edge(p3, p1);
+
+	float minDD = FLT_MAX;
+	vertex* best = nullptr;
+
+	for (int i = 0; i < pointset.size(); ++i)
+	{
+		vertex* p = pointset[i];
+
+		if (p == p1 || p == p2)
+		{
+			continue;
+		}
+
+		if (utils::same_halfspace_test(f, p3, p))
+		{
+			continue;
+		}
+
+		float currentDD = utils::delaunay_distance(f, p);
+
+		if (currentDD < minDD)
+		{
+			minDD = currentDD;
+			best = p;
+		}
+	}
+	if(best != nullptr)
+	{ 
+		best->fillColor = sf::Color::Blue;
+
+		edge* e1 = new edge(p1, best);
+		edge* e2 = new edge(p2, best);
+	}
+}
+
+// funkcja delaunay distance (dd) zdefiniowana w publikacji algorytmu DeWall
+float utils::delaunay_distance(edge * f, vertex * p)
+{
+	sf::Vector2f circumcenter = utils::circumcenter(f->v1->position, f->v2->position, p->position);
+
+	float radius = utils::vector_magnitude(&sf::Vector2f(circumcenter.x - p->position.x, circumcenter.y - p->position.y));
+
+	if (same_halfspace_test(f, p, circumcenter))
+	{
+		return radius;
+	}
+	else
+	{
+		return -radius;
+	}
+}
+
+bool utils::contains_edge(std::vector<edge*>& edges, edge* f)
+{
+	for (int i = 0; i < edges.size(); ++i)
+	{
+		if ((edges[i]->v1 == f->v1 && edges[i]->v2 == f->v2) || (edges[i]->v2 == f->v1 && edges[i]->v1 == f->v2))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void  utils::evaluate_triangle(int i, int j, int k, std::vector<vertex*>& pointset)
@@ -243,6 +427,10 @@ void  utils::evaluate_triangle(int i, int j, int k, std::vector<vertex*>& points
 	edge* e0 = new edge(pointset[i], pointset[j]);
 	edge* e1 = new edge(pointset[j], pointset[k]);
 	edge* e2 = new edge(pointset[k], pointset[i]);
+
+	e0->setColor(sf::Color(255, 255, 255, 25));
+	e1->setColor(sf::Color(255, 255, 255, 25));
+	e2->setColor(sf::Color(255, 255, 255, 25));
 }
 
 
@@ -332,4 +520,19 @@ void circumcircle::render(sf::RenderWindow * window)
 	sf::Vector2f offset(shape.getRadius(), shape.getRadius());
 	this->shape.setPosition(center - offset);
 	window->draw(shape);
+}
+
+line::line()
+{
+}
+
+void line::render(sf::RenderWindow * window)
+{
+	window->draw(pos, 2, sf::Lines);
+}
+
+line::line(sf::Vertex& v1, sf::Vertex& v2)
+{
+	pos[0] = v1;
+	pos[1] = v2;
 }

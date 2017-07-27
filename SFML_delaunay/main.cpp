@@ -35,14 +35,15 @@ int main()
 	mousePosText.setStyle(sf::Text::Bold | sf::Text::Regular);	
 	mousePosText.setPosition( static_cast<float>(mousePosText.getCharacterSize()), static_cast<float>(windowSize.y) - mousePosText.getCharacterSize() * 2 );
 		
-	/* automatyczne generowanie punktow */
+	/* automatyczne generowanie punktow */ 
 	for (int i = 0; i < VERTEX_COUNT; i++)
 	{
-		vertex* newVertex = new vertex(rand() % ((int)window.getSize().x - 120) + 60, rand() % ((int)window.getSize().y - 120) + 60);
+		float quake = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+		vertex* newVertex = new vertex(rand() % ((int)window.getSize().x - 120) + 60 + quake, rand() % ((int)window.getSize().y - 120) + 60 + quake);
 	}
 	
 
-	std::vector<edge*> e = utils::convex_hull(vertex::vertices);
+	utils::dt_dewall(vertex::vertices);
 	//utils::msgbox(std::to_string(e.size()));
 	//utils::dt_bruteforce(vertex::vertices);
 
@@ -63,8 +64,7 @@ int main()
 				sf::Vector2f mousePos = window.mapPixelToCoords( sf::Mouse::getPosition(window) );
 				std::string s_MousePos = utils::vector_description(&mousePos, "Mouse");
 				mousePosText.setString( s_MousePos );
-
-				 
+								 
 				// podswietl wierzcholki bliskie kursora 
 				// uwaga: ultra nieefektywne 				
 				for (int i = 0; i < IRenderable::renderables.size(); i++)

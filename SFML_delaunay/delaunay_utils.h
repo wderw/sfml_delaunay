@@ -13,7 +13,7 @@
 #define CUSTOM_RED 255,46,109
 #define CUSTOM_BLACK 15,15,15
 #define CUSTOM_GREEN 35,220,35
-#define CUSTOM_WHITE_ALPHA 255,255,255,100
+#define CUSTOM_WHITE_ALPHA 255,255,255,220
 
 #define VERTEX_SNAP_DISTANCE 15.0f
 
@@ -24,6 +24,7 @@ class vertex;
 class edge;
 class circumcircle;
 class utils;
+class line;
 
 // rozne narzedzia pomocnicze
 class utils
@@ -40,6 +41,7 @@ public:
 	// sprawdza czy punkt cp i p naleza do tej samej polplaszczyzny
 	// wyznaczanej przez krawedz f oraz punkt p.
 	static bool same_halfspace_test(edge* f, vertex* p, vertex* cp);
+	static bool same_halfspace_test(edge* f, vertex* p, sf::Vector2f& cp);
 
 	static inline float vector_magnitude(sf::Vector2f *vec)
 	{
@@ -103,12 +105,17 @@ public:
 
 		return result;
 	}
+
+	static bool contains_edge(std::vector<edge*>& edges, edge* f);
+
 	
-	// 3. algorytmy
-	static std::vector<edge*> convex_hull(std::vector<vertex*> &pointset);
-	static void evaluate_triangle(int i, int j, int k, std::vector<vertex*>& pointset);
-	static std::vector<edge*> dt_bruteforce(std::vector<vertex*> &pointset);
+	// 3. algorytmy	
+	static void evaluate_triangle(int i, int j, int k, std::vector<vertex*>& pointset);	
 	static sf::Vector2f circumcenter(sf::Vector2f& a, sf::Vector2f& b, sf::Vector2f& c);
+	static std::vector<edge*> dt_bruteforce(std::vector<vertex*> &pointset);
+	static std::vector<edge*> convex_hull(std::vector<vertex*> &pointset);
+	static void dt_dewall(std::vector<vertex*>& pointset);
+	static float delaunay_distance(edge* f, vertex* p);
 
 };
 
@@ -166,6 +173,17 @@ public:
 	void setColor1(sf::Color);
 	void setColor2(sf::Color);
 	void setColor(sf::Color);
+	virtual void render(sf::RenderWindow *window);
+};
+
+class line : public IRenderable
+{
+public:
+	sf::Vertex pos[2];
+
+	line();
+	line(sf::Vertex& v1, sf::Vertex& v2);
+
 	virtual void render(sf::RenderWindow *window);
 };
 
