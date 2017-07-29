@@ -67,10 +67,10 @@ edge::edge(vertex * v1, vertex * v2) : edge()
 	this->v2 = v2;
 }
 
-void edge::setOrigin(sf::Vector2f* origin)
+void edge::setOrigin(sf::Vector2f origin)
 {
 	simplex_origin = origin;
-	circumcircle* c = new circumcircle(*simplex_origin, 1.0f);
+	circumcircle* c = new circumcircle(simplex_origin, 1.0f);
 }
 
 void edge::setColor1(sf::Color c)
@@ -96,6 +96,18 @@ void edge::render(sf::RenderWindow * window)
 	};
 
 	window->draw(line, 2, sf::Lines);
+}
+
+bool utils::vertex_comparatorX(vertex * A, vertex * B)
+{
+	if (A->position.x < B->position.x)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 // funkcja sprawdza czy punkty p oraz cp leza po tej samej stronie linii
@@ -146,6 +158,11 @@ sf::Vector2f utils::triangle_centerofmass(vertex * a, vertex * b, vertex * c)
 // patrz wikipedia: algorytm jarvisa
 std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 {
+	if (pointset.size() < 3)
+	{
+		return std::vector<edge*>();
+	}
+
 	std::vector<edge*> result;
 
 	if (pointset.size() == 0)
@@ -154,7 +171,7 @@ std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 	}
 
 	// find vertex with minimal y
-	float ymin;
+	float ymin = FLT_MAX;
 
 	vertex* current = pointset[0];
 	vertex* min = nullptr;
@@ -166,16 +183,16 @@ std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 		if (current->position.y < ymin)
 		{
 			ymin = current->position.y;
-			min = current;			
+			min = current;
 		}
 	}
 	// highlight it
 	//min->fillColor = sf::Color::Yellow;
-	
+
 
 	current = min;
 	vertex* candidate = nullptr;
-	vertex* best = nullptr;	
+	vertex* best = nullptr;
 	sf::Vector2f u(1, 0); // wektor jednostkowy poczatkowy (tylko dla najwyzszego wierzcholka)
 	float minAngle = FLT_MAX; // fltmax jest w tym przypadku bezpieczny i szybszy niz inicjalizacja
 	sf::Vector2f previousVector;
@@ -187,7 +204,7 @@ std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 		if (candidate == current) continue;
 
 		sf::Vector2f v(candidate->position.x - current->position.x, candidate->position.y - current->position.y);
-		
+
 
 		float angle = utils::vector_anglebetween(&u, &v);
 		if (angle < minAngle)
@@ -196,7 +213,7 @@ std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 			best = candidate;
 			previousVector = v;
 		}
-	}	
+	}
 	//best->fillColor = sf::Color::Cyan;	
 	edge* e = new edge(current, best);
 	result.push_back(e);
@@ -225,7 +242,7 @@ std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 				previousVector = v;
 			}
 		}
-		
+
 		e = new edge(current, best);
 		result.push_back(e);
 		current = best;
@@ -235,7 +252,7 @@ std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 	return result;
 }
 
-void utils::make_simplex(edge * f, std::vector<vertex*>& pointset)
+triangle* utils::make_simplex(edge * f, std::vector<vertex*>& pointset)
 {
 	float minDD = FLT_MAX;
 	vertex* best = nullptr;
@@ -244,12 +261,14 @@ void utils::make_simplex(edge * f, std::vector<vertex*>& pointset)
 	{
 		vertex* p = pointset[i];
 
+		/*
 		if (p == f->v1 || p == f->v2)
 		{
 			continue;
 		}
+		*/
 
-		if (utils::same_halfspace_test(f, p, *f->simplex_origin))
+		if (utils::same_halfspace_test(f, p, f->simplex_origin))
 		{
 			continue;
 		}
@@ -270,24 +289,58 @@ void utils::make_simplex(edge * f, std::vector<vertex*>& pointset)
 		edge* e1 = new edge(f->v1, best);
 		edge* e2 = new edge(f->v2, best);
 
+		e1->setColor(sf::Color::Red);
+		e2->setColor(sf::Color::Red);
+
 		sf::Vector2f origin(utils::triangle_centerofmass(f->v1, f->v2, best));
-		e1->setOrigin(&origin);
-		e2->setOrigin(&origin);
+		e1->setOrigin(origin);
+		e2->setOrigin(origin);
+
+		triangle* t = new triangle(e1, e2, f);
+
+		return t;
+
 	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+// bezpieczna po wskazniku edge* e
+void utils::afl_update(std::list<edge*>& AFL, edge* e)
+{
+	for (auto const& i : AFL) 
+	{
+		if (same_edge(i, e))
+		{
+			AFL.remove(i);
+			return;
+		}
+	}
+	AFL.push_back(e);
 }
 
 void utils::dt_dewall(std::vector<vertex*>& pointset)
 {
-	float alfa = 500;
+	if (pointset.size() < 3)
+	{
+		return;
+	}
+
+	utils::sort_by_x(pointset);
+
+
+	float alfa = pointset[pointset.size()/2]->position.x + 0.05132f;
 	sf::Vector2f pos1(alfa, 0);
 	sf::Vector2f pos2(alfa, 900);
 	line* cuttingLine = new line(sf::Vertex(pos1, sf::Color::Cyan), sf::Vertex(pos2, sf::Color::Cyan));
 
-	std::vector<edge*> hull = utils::convex_hull(pointset);
+	//std::vector<edge*> hull = utils::convex_hull(pointset);
 
 	float minDist1 = FLT_MAX;
 	float currentDistance;
-	vertex* currentVertex = nullptr,*p1 = nullptr;
+	vertex* currentVertex = nullptr, *p1 = nullptr;
 
 	// MakeFirstSimplex:
 	for (int i = 0; i < pointset.size(); ++i)
@@ -367,62 +420,38 @@ void utils::dt_dewall(std::vector<vertex*>& pointset)
 	p2->fillColor = sf::Color::White;
 	p3->fillColor = sf::Color::Cyan;
 
-	utils::dt_bruteforce(pointset);
-
-	
+	//utils::dt_bruteforce(pointset);
 
 	/* generic simplex: */
 	edge* f = new edge(p1, p2);
 	edge* f2 = new edge(p2, p3);
 	edge* f3 = new edge(p3, p1);
 
-	f->setOrigin(&sf::Vector2f(utils::triangle_centerofmass(p1, p2, p3)));
-	f2->setOrigin(&sf::Vector2f(utils::triangle_centerofmass(p1, p2, p3)));
-	f3->setOrigin(&sf::Vector2f(utils::triangle_centerofmass(p1, p2, p3)));
+	f->setOrigin(sf::Vector2f(utils::triangle_centerofmass(p1, p2, p3)));
+	f2->setOrigin(sf::Vector2f(utils::triangle_centerofmass(p1, p2, p3)));
+	f3->setOrigin(sf::Vector2f(utils::triangle_centerofmass(p1, p2, p3)));
 
-	utils::make_simplex(f, pointset);
-	utils::make_simplex(f2, pointset);
-	utils::make_simplex(f3, pointset);
+	std::list<edge*> AFL;
 
-	/*
-	float minDD = FLT_MAX;
-	vertex* best = nullptr;
+	
+	triangle* t0 = new triangle(f, f2, f3);
 
-	for (int i = 0; i < pointset.size(); ++i)
+	afl_update(AFL,f);
+	afl_update(AFL, f2);
+	afl_update(AFL, f3);
+
+	while (!(AFL.empty()))
 	{
-		vertex* p = pointset[i];
+		edge* e = AFL.back();
+		AFL.pop_back();
 
-		if (p == p1 || p == p2)
+		triangle* t = make_simplex(e, pointset);
+		if (t != nullptr)
 		{
-			continue;
-		}
-
-		if (utils::same_halfspace_test(f, p3, p))
-		{
-			continue;
-		}
-
-		float currentDD = utils::delaunay_distance(f, p);
-
-		if (currentDD < minDD)
-		{
-			minDD = currentDD;
-			best = p;
+			afl_update(AFL, t->e0);
+			afl_update(AFL, t->e1);
 		}
 	}
-
-	if(best != nullptr)
-	{ 
-		best->fillColor = sf::Color::Blue;
-
-		edge* e1 = new edge(p1, best);
-		edge* e2 = new edge(p2, best);
-
-		sf::Vector2f origin(utils::triangle_centerofmass(p1, p2, best));
-		e1->setOrigin(&origin);
-		e2->setOrigin(&origin);
-	}
-	*/
 }
 
 // funkcja delaunay distance (dd) zdefiniowana w publikacji algorytmu DeWall
@@ -452,6 +481,18 @@ bool utils::contains_edge(std::vector<edge*>& edges, edge* f)
 		}
 	}
 	return false;
+}
+
+bool utils::same_edge(edge* A, edge* B)
+{
+	if ((A->v1 == B->v1 && A->v2 == B->v2) || (A->v1 == B->v2 && A->v2 == B->v1))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void  utils::evaluate_triangle(int i, int j, int k, std::vector<vertex*>& pointset)
@@ -484,7 +525,7 @@ void  utils::evaluate_triangle(int i, int j, int k, std::vector<vertex*>& points
 
 		// dodaj kółko do listy w razie gdybyśmy chcieli je obejrzeć na ekranie. (Nieistotne)
 		// circumcircle* c = new circumcircle(circumcenter, distance);
-		
+
 		// jeżeli odległość punktu sprawdzanego 'w' od środka koła opisanego jest mniejsza niż
 		// promień koła, to odrzuć trójkąt.
 		if (wDistance < distance)
@@ -560,7 +601,7 @@ circumcircle::circumcircle()
 	if (!(circumcircle::redColorProgression + 35 > 255))
 	{
 		circumcircle::redColorProgression += 35;
-	}	
+	}
 }
 
 circumcircle::circumcircle(sf::Vector2f center, float radius) : circumcircle()
@@ -604,4 +645,18 @@ line::line(sf::Vertex& v1, sf::Vertex& v2)
 {
 	pos[0] = v1;
 	pos[1] = v2;
+}
+
+triangle::triangle()
+{
+	e0 = nullptr;
+	e1 = nullptr;
+	e2 = nullptr;
+}
+
+triangle::triangle(edge *e0, edge *e1, edge *e2) : triangle()
+{
+	this->e0 = e0;
+	this->e1 = e1;
+	this->e2 = e2;
 }
