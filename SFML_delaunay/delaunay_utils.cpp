@@ -42,16 +42,18 @@ void vertex::moveBy(float _x, float _y)
 	this->position.x += _x;
 	this->position.y += _y;
 }
-
+/*
 void vertex::render(sf::RenderWindow *window)
 {
+	
 	this->shape.setOutlineColor(outlineColor);
 	this->shape.setFillColor(fillColor);
 	sf::Vector2f offset(shape.getRadius(), shape.getRadius());
 	this->shape.setPosition(position - offset);
 	window->draw(shape);
+	
 }
-
+*/
 edge::edge()
 {
 	v1 = nullptr;
@@ -70,7 +72,7 @@ edge::edge(vertex * v1, vertex * v2) : edge()
 void edge::setOrigin(sf::Vector2f origin)
 {
 	simplex_origin = origin;
-	circumcircle* c = new circumcircle(simplex_origin, 1.0f);
+	//circumcircle* c = new circumcircle(simplex_origin, 1.0f);
 }
 
 void edge::setColor1(sf::Color c)
@@ -89,6 +91,7 @@ void edge::setColor(sf::Color c)
 
 void edge::render(sf::RenderWindow * window)
 {
+	/*
 	sf::Vertex line[] =
 	{
 		sf::Vertex(v1->position,color1),
@@ -96,6 +99,7 @@ void edge::render(sf::RenderWindow * window)
 	};
 
 	window->draw(line, 2, sf::Lines);
+	*/
 }
 
 bool utils::vertex_comparatorX(vertex * A, vertex * B)
@@ -114,25 +118,7 @@ bool utils::vertex_comparatorX(vertex * A, vertex * B)
 // wyznaczanej przez wektor f
 // przypadek w ktorym punkt cp lub p leza na linii(f) moze powodowac problemy
 // todo: funkcja powinna zwracac inna wartosc niz false/true np. (1,0,-1) w zaleznosci od znaku iloczynu iloczynow skalarnych.
-bool utils::same_halfspace_test(edge * f, vertex * p, vertex * cp)
-{
-	sf::Vector2f v(f->v2->position.x - f->v1->position.x, f->v2->position.y - f->v1->position.y);
-	sf::Vector2f w(v.y, -v.x);
-
-	float result_p = utils::vector_dotproduct(&(p->position - f->v1->position), &w);
-	float result_cp = utils::vector_dotproduct(&(cp->position - f->v1->position), &w);
-
-	if (result_p * result_cp < 0)
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
-
-bool utils::same_halfspace_test(edge * f, vertex * p, sf::Vector2f &cp)
+int utils::same_halfspace_test(edge * f, vertex * p, sf::Vector2f &cp)
 {
 	sf::Vector2f v(f->v2->position.x - f->v1->position.x, f->v2->position.y - f->v1->position.y);
 	sf::Vector2f w(v.y, -v.x);
@@ -140,13 +126,18 @@ bool utils::same_halfspace_test(edge * f, vertex * p, sf::Vector2f &cp)
 	float result_p = utils::vector_dotproduct(&(p->position - f->v1->position), &w);
 	float result_cp = utils::vector_dotproduct(&(cp - f->v1->position), &w);
 
-	if (result_p * result_cp < 0)
+	float result = result_p * result_cp;
+	if (result < 0)
 	{
-		return false;
+		return -1;
+	}
+	else if (result > 0)
+	{
+		return 1;
 	}
 	else
 	{
-		return true;
+		return 0;
 	}
 }
 
@@ -252,7 +243,7 @@ std::vector<edge*> utils::convex_hull(std::vector<vertex*> &pointset)
 	return result;
 }
 
-triangle* utils::make_simplex(edge * f, std::vector<vertex*>& pointset)
+triangle* utils::make_simplex(edge * f, std::vector<vertex*>& pointset, float alfa)
 {
 	float minDD = FLT_MAX;
 	vertex* best = nullptr;
@@ -261,17 +252,18 @@ triangle* utils::make_simplex(edge * f, std::vector<vertex*>& pointset)
 	{
 		vertex* p = pointset[i];
 
-		/*
+		
 		if (p == f->v1 || p == f->v2)
 		{
 			continue;
 		}
-		*/
+		
 
-		if (utils::same_halfspace_test(f, p, f->simplex_origin))
+		if (utils::same_halfspace_test(f, p, f->simplex_origin) >= 0)// || (utils::same_halfspace_test(f, p, f->simplex_origin) == 0))
 		{
 			continue;
 		}
+		
 
 		float currentDD = utils::delaunay_distance(f, p);
 
@@ -289,14 +281,20 @@ triangle* utils::make_simplex(edge * f, std::vector<vertex*>& pointset)
 		edge* e1 = new edge(f->v1, best);
 		edge* e2 = new edge(f->v2, best);
 
-		e1->setColor(sf::Color::Red);
-		e2->setColor(sf::Color::Red);
-
 		sf::Vector2f origin(utils::triangle_centerofmass(f->v1, f->v2, best));
 		e1->setOrigin(origin);
 		e2->setOrigin(origin);
 
+		if (!is_intersected(e1, alfa) && !is_intersected(e2, alfa))
+		{
+			//t->setVisible(false);
+			return nullptr;
+		}
+
+
 		triangle* t = new triangle(e1, e2, f);
+
+		
 
 		return t;
 
@@ -310,7 +308,7 @@ triangle* utils::make_simplex(edge * f, std::vector<vertex*>& pointset)
 // bezpieczna po wskazniku edge* e
 void utils::afl_update(std::list<edge*>& AFL, edge* e)
 {
-	for (auto const& i : AFL) 
+	for (auto const& i : AFL)
 	{
 		if (same_edge(i, e))
 		{
@@ -331,7 +329,9 @@ void utils::dt_dewall(std::vector<vertex*>& pointset)
 	utils::sort_by_x(pointset);
 
 
-	float alfa = pointset[pointset.size()/2]->position.x + 0.05132f;
+	//float alfa = pointset[pointset.size() / 2]->position.x + 0.05132f;
+	float alfa = pointset[(pointset.size() / 2)]->position.x + 1;
+
 	sf::Vector2f pos1(alfa, 0);
 	sf::Vector2f pos2(alfa, 900);
 	line* cuttingLine = new line(sf::Vertex(pos1, sf::Color::Cyan), sf::Vertex(pos2, sf::Color::Cyan));
@@ -433,10 +433,10 @@ void utils::dt_dewall(std::vector<vertex*>& pointset)
 
 	std::list<edge*> AFL;
 
-	
+
 	triangle* t0 = new triangle(f, f2, f3);
 
-	afl_update(AFL,f);
+	afl_update(AFL, f);
 	afl_update(AFL, f2);
 	afl_update(AFL, f3);
 
@@ -445,7 +445,7 @@ void utils::dt_dewall(std::vector<vertex*>& pointset)
 		edge* e = AFL.back();
 		AFL.pop_back();
 
-		triangle* t = make_simplex(e, pointset);
+		triangle* t = make_simplex(e, pointset,alfa);
 		if (t != nullptr)
 		{
 			afl_update(AFL, t->e0);
@@ -461,7 +461,7 @@ float utils::delaunay_distance(edge * f, vertex * p)
 
 	float radius = utils::vector_magnitude(&sf::Vector2f(circumcenter.x - p->position.x, circumcenter.y - p->position.y));
 
-	if (same_halfspace_test(f, p, circumcenter))
+	if (same_halfspace_test(f, p, circumcenter) >= 0)
 	{
 		return radius;
 	}
@@ -486,6 +486,22 @@ bool utils::contains_edge(std::vector<edge*>& edges, edge* f)
 bool utils::same_edge(edge* A, edge* B)
 {
 	if ((A->v1 == B->v1 && A->v2 == B->v2) || (A->v1 == B->v2 && A->v2 == B->v1))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool utils::is_intersected(edge * e, float alfa)
+{
+	if (e->v1->position.x < alfa && e->v2->position.x > alfa)
+	{
+		return true;
+	}
+	else if (e->v2->position.x < alfa && e->v1->position.x > alfa)
 	{
 		return true;
 	}
@@ -659,4 +675,30 @@ triangle::triangle(edge *e0, edge *e1, edge *e2) : triangle()
 	this->e0 = e0;
 	this->e1 = e1;
 	this->e2 = e2;
+}
+
+void triangle::render(sf::RenderWindow * window)
+{
+	sf::Vertex line0[] =
+	{
+		sf::Vertex(e0->v1->position,e0->color1),
+		sf::Vertex(e0->v2->position,e0->color2)
+	};
+
+	sf::Vertex line1[] =
+	{
+		sf::Vertex(e1->v1->position,e1->color1),
+		sf::Vertex(e1->v2->position,e1->color2)
+	};
+
+	sf::Vertex line2[] =
+	{
+		sf::Vertex(e2->v1->position,e2->color1),
+		sf::Vertex(e2->v2->position,e2->color2)
+	};
+
+	window->draw(line0, 2, sf::Lines);
+	window->draw(line1, 2, sf::Lines);
+	window->draw(line2, 2, sf::Lines);
+
 }

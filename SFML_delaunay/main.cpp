@@ -8,7 +8,7 @@
 int main()
 {
 	srand(time(NULL));
-	//srand(1235);
+	//srand(1530);
 
 	// zaladuj fonty
 	sf::Font font;
@@ -43,7 +43,15 @@ int main()
 	}
 
 
+	sf::Clock clock;
+	clock.restart();
+
 	utils::dt_dewall(vertex::vertices);
+
+	sf::Time t = clock.restart();
+	float time_f = t.asMilliseconds();
+	utils::msgbox(std::to_string(time_f));
+
 	//utils::msgbox(std::to_string(e.size()));
 	//utils::dt_bruteforce(vertex::vertices);
 
@@ -100,6 +108,7 @@ int main()
 					}
 					break;
 				}
+				
 				default:
 				{
 					break;

@@ -19,13 +19,18 @@
 
 #define VERTEX_SNAP_DISTANCE 15.0f
 
-#define VERTEX_COUNT 3000
+#define VERTEX_COUNT 10000
 
+// narzedzia
+class utils;
+
+// interfejs obiektow widocznych
 class IRenderable;
+
+// klasy implementujace renderable:
 class vertex;
 class edge;
 class circumcircle;
-class utils;
 class line;
 class triangle;
 
@@ -50,8 +55,7 @@ public:
 
 	// sprawdza czy punkt cp i p naleza do tej samej polplaszczyzny
 	// wyznaczanej przez krawedz f oraz punkt p.
-	static bool same_halfspace_test(edge* f, vertex* p, vertex* cp);
-	static bool same_halfspace_test(edge* f, vertex* p, sf::Vector2f& cp);
+	static int same_halfspace_test(edge* f, vertex* p, sf::Vector2f& cp);
 
 	static float vector_magnitude(sf::Vector2f *vec)
 	{
@@ -107,13 +111,14 @@ public:
 
 
 	// 3. algorytmy	
+	static bool is_intersected(edge* e, float alfa);
 	static void evaluate_triangle(int i, int j, int k, std::vector<vertex*>& pointset);
 	static sf::Vector2f circumcenter(sf::Vector2f& a, sf::Vector2f& b, sf::Vector2f& c);
 	static std::vector<edge*> dt_bruteforce(std::vector<vertex*> &pointset);
 	static void dt_dewall(std::vector<vertex*>& pointset);
 	static float delaunay_distance(edge* f, vertex* p);
 	static std::vector<edge*> convex_hull(std::vector<vertex*> &pointset);
-	static triangle* make_simplex(edge* f, std::vector<vertex*>& pointset);
+	static triangle* make_simplex(edge* f, std::vector<vertex*>& pointset,float alfa);
 	static void afl_update(std::list<edge*>& AFL, edge*);
 
 };
@@ -138,7 +143,7 @@ public:
 	virtual void render(sf::RenderWindow *window) = 0;
 };
 
-class vertex : public IRenderable
+class vertex// : public IRenderable
 {
 public:
 	static std::vector<vertex*> vertices;
@@ -155,7 +160,7 @@ public:
 	inline void moveTo(sf::Vector2f);
 	void moveBy(float, float);
 
-	virtual void render(sf::RenderWindow *window);
+	//virtual void render(sf::RenderWindow *window);
 };
 
 class edge : public IRenderable
@@ -205,7 +210,7 @@ public:
 	circumcircle(sf::Vector2f center, float radius);
 	virtual void render(sf::RenderWindow *window);
 };
-class triangle
+class triangle : public IRenderable
 {
 public:
 	edge* e0;
@@ -214,4 +219,6 @@ public:
 
 	triangle();
 	triangle(edge*, edge*, edge*);
+
+	virtual void render(sf::RenderWindow *window);
 };
