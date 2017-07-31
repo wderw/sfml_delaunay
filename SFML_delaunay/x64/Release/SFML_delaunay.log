@@ -1,10 +1,9 @@
-﻿  delaunay_utils.cpp
-  main.cpp
-main.cpp(10): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-main.cpp(52): warning C4244: 'initializing': conversion from 'sf::Int32' to 'float', possible loss of data
-main.cpp(133): warning C4244: 'argument': conversion from '::size_t' to 'float', possible loss of data
+﻿  main.cpp
+main.cpp(39): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+main.cpp(45): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+main.cpp(194): warning C4244: 'argument': conversion from '::size_t' to 'float', possible loss of data
   Generating code
-  11 of 403 functions ( 2.7%) were compiled, the rest were copied from previous compilation.
+  11 of 405 functions ( 2.7%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     1 functions had inline decision re-evaluated but remain unchanged
   Finished generating code

@@ -3,12 +3,15 @@
 #include <cstdlib>
 #include <algorithm>
 
-#include "delaunay_utils.h"
+#include "common.h"
+#include "Utils.h"
+#include "Vertex.h"
+#include "IRenderable.h"
 
 int main()
 {
-	srand(time(NULL));
-	//srand(1530);
+	//srand(time(NULL));
+	srand(1531);
 
 	// zaladuj fonty
 	sf::Font font;
@@ -33,29 +36,37 @@ int main()
 	mousePosText.setCharacterSize(18);
 	mousePosText.setFillColor(sf::Color::White);
 	mousePosText.setStyle(sf::Text::Bold | sf::Text::Regular);
-	mousePosText.setPosition(static_cast<float>(mousePosText.getCharacterSize()), static_cast<float>(windowSize.y) - mousePosText.getCharacterSize() * 2);
+	mousePosText.setPosition(static_cast<double>(mousePosText.getCharacterSize()), static_cast<double>(windowSize.y) - mousePosText.getCharacterSize() * 2);
 
 	/* automatyczne generowanie punktow */
 	for (int i = 0; i < VERTEX_COUNT; i++)
 	{
-		float quake = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-		vertex* newVertex = new vertex(rand() % ((int)window.getSize().x - 120) + 60 + quake, rand() % ((int)window.getSize().y - 120) + 60 + quake);
+		double quake = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
+		Vertex* newVertex = new Vertex(rand() % ((int)window.getSize().x - 120) + 60 + quake, rand() % ((int)window.getSize().y - 120) + 60 + quake);
 	}
 
+	//sf::View view = window.getView();
+	//view.zoom(0.05f);
+	//window.setView(view);
+	//view.zoom(0.24f);
+	//view.move(245, -140);
 
+
+
+	// zmierz czas wykonania
 	sf::Clock clock;
 	clock.restart();
 
-	utils::dt_dewall(vertex::vertices);
+	Utils::dt_dewall(Vertex::vertices);
 
-	sf::Time t = clock.restart();
-	float time_f = t.asMilliseconds();
-	utils::msgbox(std::to_string(time_f));
+	sf::Time time = clock.restart();
+	double timeMilliseconds = time.asMilliseconds();
+	Utils::msgbox(std::to_string(timeMilliseconds));
 
 	//utils::msgbox(std::to_string(e.size()));
 	//utils::dt_bruteforce(vertex::vertices);
 
-
+	float moveValue = 1.0f;
 	// petla komunikatow i obsluga zdarzen
 	while (window.isOpen())
 	{
@@ -69,11 +80,61 @@ int main()
 					window.close();
 					break;
 				}
+				case sf::Event::KeyPressed:
+				{
+
+					if (event.key.code == sf::Keyboard::F)
+					{
+						moveValue *= 0.5f;
+					}
+
+					if (event.key.code == sf::Keyboard::G)
+					{
+						moveValue *= 2.0f;
+					}
+					if (event.key.code == sf::Keyboard::F1)
+					{
+						sf::View view = window.getView();
+						view.zoom(0.5f);
+						window.setView(view);
+					}
+					else if (event.key.code == sf::Keyboard::F2)
+					{
+						sf::View view = window.getView();
+						view.zoom(2.0f);
+						window.setView(view);
+					}
+					else if (event.key.code == sf::Keyboard::W)
+					{
+						sf::View view = window.getView();
+						view.move(0, -moveValue);
+						window.setView(view);
+					}
+					else if (event.key.code == sf::Keyboard::S)
+					{
+						sf::View view = window.getView();
+						view.move(0, moveValue);
+						window.setView(view);
+					}
+					else if (event.key.code == sf::Keyboard::A)
+					{
+						sf::View view = window.getView();
+						view.move(-moveValue, 0);
+						window.setView(view);
+					}
+					else if (event.key.code == sf::Keyboard::D)
+					{
+						sf::View view = window.getView();
+						view.move(moveValue,0);
+						window.setView(view);
+					}
+					break;
+				}
 				case sf::Event::MouseMoved:
 				{
 					/* wyswietl pozycje kursora */
 					sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-					std::string s_MousePos = utils::vector_description(&mousePos, "Mouse");
+					std::string s_MousePos = Utils::vectorDescription(&mousePos, "Mouse");
 					mousePosText.setString(s_MousePos);
 
 					// podswietl wierzcholki bliskie kursora 
@@ -81,12 +142,12 @@ int main()
 					for (int i = 0; i < IRenderable::renderables.size(); i++)
 					{
 						IRenderable* pRenderable = IRenderable::renderables[i];
-						vertex* highlightCandidate = dynamic_cast<vertex*>(pRenderable);
+						Vertex* highlightCandidate = dynamic_cast<Vertex*>(pRenderable);
 
 						if (highlightCandidate != nullptr)
 						{
 							sf::Vector2f difference = mousePos - highlightCandidate->position;
-							float distance = utils::vector_magnitude(&difference);
+							double distance = Utils::vectorMagnitude(&difference);
 							if (distance < VERTEX_SNAP_DISTANCE)
 							{
 								// highlight
@@ -94,14 +155,14 @@ int main()
 								highlightCandidate->shape.setOutlineThickness(4.5f);
 								highlightCandidate->outlineColor = sf::Color(CUSTOM_GREEN);
 
-								std::string sVertexInfo = utils::vector_description(&highlightCandidate->position, "\nCurrent vertex");
+								std::string sVertexInfo = Utils::vectorDescription(&highlightCandidate->position, "\nCurrent vertex");
 								mousePosText.setString(mousePosText.getString() + sVertexInfo);
 							}
 							else
 							{
 								// unhighlight
-								highlightCandidate->shape.setRadius(3.0f);
-								highlightCandidate->shape.setOutlineThickness(2.0f);
+								highlightCandidate->shape.setRadius(1.0f);
+								highlightCandidate->shape.setOutlineThickness(1.0f);
 								highlightCandidate->outlineColor = sf::Color(CUSTOM_RED);
 							}
 						}

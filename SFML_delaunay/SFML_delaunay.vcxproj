@@ -134,11 +134,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="delaunay_utils.cpp" />
+    <ClCompile Include="Circle.cpp" />
+    <ClCompile Include="Triangle.cpp" />
+    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="Edge.cpp" />
+    <ClCompile Include="IRenderable.cpp" />
+    <ClCompile Include="Line.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="delaunay_utils.h" />
+    <ClInclude Include="Circle.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="Utils.h" />
+    <ClInclude Include="Edge.h" />
+    <ClInclude Include="IRenderable.h" />
+    <ClInclude Include="Line.h" />
+    <ClInclude Include="Triangle.h" />
+    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
