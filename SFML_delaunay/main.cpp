@@ -10,9 +10,11 @@
 
 int main()
 {
-	//srand(time(NULL));
-	srand(1531);
-
+	time_t asd = time(NULL);
+	//srand(asd);
+	printf("seed: %d\n", asd);
+	//srand(1531);
+	srand(1501757015);
 	// zaladuj fonty
 	sf::Font font;
 	if (!font.loadFromFile("cour.ttf"))
@@ -61,12 +63,12 @@ int main()
 
 	sf::Time time = clock.restart();
 	double timeMilliseconds = time.asMilliseconds();
-	Utils::msgbox(std::to_string(timeMilliseconds));
-
+	//Utils::msgbox(std::to_string(timeMilliseconds));
+	printf("elapsed time: %lf\nseed: %d\n", timeMilliseconds,asd);
 	//utils::msgbox(std::to_string(e.size()));
 	//utils::dt_bruteforce(vertex::vertices);
 
-	float moveValue = 1.0f;
+	double moveValue = 1.0;
 	// petla komunikatow i obsluga zdarzen
 	while (window.isOpen())
 	{
@@ -85,23 +87,25 @@ int main()
 
 					if (event.key.code == sf::Keyboard::F)
 					{
-						moveValue *= 0.5f;
+						moveValue *= 0.5;
 					}
 
 					if (event.key.code == sf::Keyboard::G)
 					{
-						moveValue *= 2.0f;
+						moveValue *= 2.0;
 					}
 					if (event.key.code == sf::Keyboard::F1)
 					{
 						sf::View view = window.getView();
 						view.zoom(0.5f);
+						moveValue *= 0.5;
 						window.setView(view);
 					}
 					else if (event.key.code == sf::Keyboard::F2)
 					{
 						sf::View view = window.getView();
-						view.zoom(2.0f);
+						view.zoom(2.0);
+						moveValue *= 2.0;
 						window.setView(view);
 					}
 					else if (event.key.code == sf::Keyboard::W)

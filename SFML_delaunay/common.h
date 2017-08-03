@@ -21,7 +21,7 @@
 #define FIRST_SIMPLEX_OFFSET_EPSILON 0.0001f
 
 
-#define VERTEX_COUNT 50000
+#define VERTEX_COUNT 7000
 
 // narzedzia
 class Utils;

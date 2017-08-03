@@ -23,6 +23,7 @@ public:
 	// sprawdza czy punkt cp i p naleza do tej samej polplaszczyzny
 	// wyznaczanej przez krawedz f oraz punkt p.
 	static int sameHalfspaceTest(Edge* f, Vertex* p, sf::Vector2f& cp);
+	static float sameHalfspaceTestCheck(Edge * f, Vertex * p, sf::Vector2f &cp);
 
 	static float vectorMagnitude(sf::Vector2f *vec);
 
@@ -55,7 +56,7 @@ public:
 	// 3. algorytmy	
 	static bool isIntersected(Edge* e, float alfa);
 	static void evaluateTriangle(int i, int j, int k, std::vector<Vertex*>& pointset);
-	static sf::Vector2f circumCenter(sf::Vector2f& a, sf::Vector2f& b, sf::Vector2f& c);
+	static sf::Vector2f* circumCenter(sf::Vector2f& a, sf::Vector2f& b, sf::Vector2f& c);
 	static std::vector<Edge*> dt_bruteforce(std::vector<Vertex*> &pointset);
 	static void dt_dewall(std::vector<Vertex*>& pointset);
 	static float delaunayDistance(Edge* f, Vertex* p);
