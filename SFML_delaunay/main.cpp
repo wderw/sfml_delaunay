@@ -14,7 +14,7 @@ int main()
 	srand(randomSeed);
 
 	printf("seed: %d\n", randomSeed);
-	srand(1531);
+	//srand(1531);
 	//srand(1501925017);
 
 	// zaladuj fonty
@@ -64,9 +64,9 @@ int main()
 	sf::Time time = clock.restart();
 	double timeMilliseconds = time.asMilliseconds();
 	//Utils::msgbox(std::to_string(timeMilliseconds));
-	//printf("elapsed time: %lf\nseed: %d\n", timeMilliseconds,randomSeed);
+	printf("elapsed time: %lf\nseed: %d\n", timeMilliseconds,randomSeed);
 	//utils::msgbox(std::to_string(e.size()));
-	//utils::dt_bruteforce(vertex::vertices);
+	//Utils::dt_bruteforce(Vertex::vertices);
 
 	double moveValue = 1.0;
 	// petla komunikatow i obsluga zdarzen

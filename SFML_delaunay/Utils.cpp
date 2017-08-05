@@ -8,8 +8,6 @@
 #include "Line.h"
 
 int Circle::redColorProgression = 0;
-int Utils::theEnd = 0;
-
 
 inline bool Utils::vertexComparatorX(Vertex * A, Vertex * B)
 {
@@ -31,7 +29,7 @@ inline void Utils::sortByX(std::vector<Vertex*>& pointset)
 // wyznaczanej przez wektor f
 // przypadek w ktorym punkt cp lub p leza na linii(f) moze powodowac problemy
 // todo: funkcja powinna zwracac inna wartosc niz false/true np. (1,0,-1) w zaleznosci od znaku iloczynu iloczynow skalarnych.
-int Utils::sameHalfspaceTest(Edge * f, Vertex * p, sf::Vector2<double> &cp)
+inline int Utils::sameHalfspaceTest(Edge * f, Vertex * p, sf::Vector2<double> &cp)
 {
 	sf::Vector2<double> v(f->v2->position.x - f->v1->position.x, f->v2->position.y - f->v1->position.y);
 	sf::Vector2<double> w(v.y, -v.x);
@@ -179,7 +177,6 @@ std::vector<Edge*> Utils::convexHull(std::vector<Vertex*> &pointset)
 Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double alfa)
 {
 	double minDD = DBL_MAX;
-	//double minDD = 50;
 	Vertex* best = nullptr;
 
 	for (register int i = 0; i < pointset.size(); ++i)
@@ -215,6 +212,7 @@ Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double al
 			return nullptr;
 		}
 		*/
+
 		Edge *e1, *e2;
 		e1 = new Edge(f->v1, best);
 		e2 = new Edge(f->v2, best);
@@ -292,7 +290,7 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 	Vertex* currentVertex = nullptr, *p1 = nullptr;
 
 	// MakeFirstSimplex:
-	for (int i = 0; i < pointset.size(); ++i)
+	for (register int i = 0; i < pointset.size(); ++i)
 	{
 		currentVertex = pointset[i];
 		currentDistance = fabs(currentVertex->position.x - alfa);
@@ -316,14 +314,13 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 	}
 
 
-
 	// znajdz p2 po drugiej stronie
 	minDist1 = DBL_MAX;
 	currentDistance = 0;
 	currentVertex = nullptr;
 	Vertex* p2 = nullptr;
 
-	for (int i = 0; i < pointset.size(); ++i)
+	for (register int i = 0; i < pointset.size(); ++i)
 	{
 		currentVertex = pointset[i];
 		currentDistance = Utils::vectorMagnitude(&(currentVertex->position - p1->position));
@@ -353,7 +350,7 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 	Vertex* p3 = nullptr;
 	sf::Vector2<double>* circumcenter;
 
-	for (int i = 0; i < pointset.size(); ++i)
+	for (register int i = 0; i < pointset.size(); ++i)
 	{
 		currentVertex = pointset[i];
 		circumcenter = Utils::circumCenter(p1->position, p2->position, currentVertex->position);
@@ -405,8 +402,7 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 		Triangle* t = makeSimplex(e, pointset,alfa);
 
 		if (t != nullptr)
-		{
-			
+		{			
 			updateAFL(AFL, t->e0);
 			updateAFL(AFL, t->e1);		
 		}
@@ -579,7 +575,7 @@ std::vector<Edge*> Utils::dt_bruteforce(std::vector<Vertex*>& pointset)
 }
 
 // srodek kola opisanego na trojkacie abc
-sf::Vector2<double>* Utils::circumCenter(sf::Vector2<double>& a, sf::Vector2<double>& b, sf::Vector2<double>& c)
+inline sf::Vector2<double>* Utils::circumCenter(sf::Vector2<double>& a, sf::Vector2<double>& b, sf::Vector2<double>& c)
 {
 	double x1 = a.x;
 	double y1 = a.y;

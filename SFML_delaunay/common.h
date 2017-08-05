@@ -22,7 +22,7 @@
 #define FIRST_SIMPLEX_OFFSET_EPSILON 0.0000000000001
 
 
-#define VERTEX_COUNT 7000
+#define VERTEX_COUNT 2000
 #define ITER_COUNT 1300
 
 //706 iteracja = odbicie od dolnej sciany
