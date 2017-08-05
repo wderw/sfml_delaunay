@@ -174,7 +174,7 @@ std::vector<Edge*> Utils::convexHull(std::vector<Vertex*> &pointset)
 	return result;
 }
 
-Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double alfa)
+Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double alfa, std::vector<Edge*> &hull)
 {
 	double minDD = DBL_MAX;
 	//double minDD = 50;
@@ -183,7 +183,6 @@ Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double al
 	for (register int i = 0; i < pointset.size(); ++i)
 	{
 		Vertex* p = pointset[i];
-
 		
 		if (p == f->v1 || p == f->v2)
 		{
@@ -204,37 +203,40 @@ Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double al
 			minDD = currentDD;
 			best = p;
 		}
-
-
-
 	}
-
-
 
 	if (best != nullptr)
 	{
-		best->fillColor = sf::Color::Blue;
-
-		Edge* e1 = new Edge(f->v1, best);
-		Edge* e2 = new Edge(f->v2, best);
-
-		sf::Vector2<double> origin(Utils::triangleCenterOfMass(f->v1, f->v2, best));
-		e1->setOrigin(origin);
-		e2->setOrigin(origin);
+		for (int i = 0; i < hull.size(); ++i)
+		{
+			if (sameEdge(f, hull[i]))
+			{
+				return nullptr;
+			}			
+		}
 
 		// buduj tylko sciane
-		if (!isIntersected(e1, alfa) && !isIntersected(e2, alfa))
+		if (!isIntersected(f->v1, best, alfa) && !isIntersected(f->v2,best, alfa))
 		{
-			//t->setVisible(false);
 			return nullptr;
 		}
+		else
+		{
+			Edge *e1, *e2;
+			e1 = new Edge(f->v1, best);
+			e2 = new Edge(f->v2, best);
+
+			sf::Vector2<double> origin(Utils::triangleCenterOfMass(f->v1, f->v2, best));
+			e1->setOrigin(origin);
+			e2->setOrigin(origin);		
 		
-		
-		Triangle* t = new Triangle(e1, e2, f);
-		return t;
+			Triangle* t = new Triangle(e1, e2, f);
 
-
-
+			sf::Vector2<double> *center = circumCenter(f->v1->position, f->v2->position, best->position);
+			double radius = vectorMagnitude(&sf::Vector2<double>(center->x - f->v1->position.x, center->y - f->v1->position.y));
+			Circle *c = new Circle(*center,radius);
+			return t;
+		}
 	}
 	else
 	{
@@ -242,20 +244,41 @@ Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double al
 	}
 }
 
+struct special_compare : public std::unary_function<Edge*, bool>
+{
+	explicit special_compare(Edge* baseline) : baseline(baseline) {}
+
+	bool operator() (Edge* arg)
+	{
+		return Utils::sameEdge(arg, baseline);
+	}
+	Edge* baseline;
+};
+
 // bezpieczna po wskazniku edge* e
 inline void Utils::updateAFL(std::list<Edge*>& AFL, Edge* e)
 {
+	std::list<Edge*>::iterator it = std::find_if(AFL.begin(), AFL.end(), special_compare(e));
+	if (it == AFL.end())
+	{
+		AFL.push_back(e);
+	}
+	else
+	{
+		AFL.remove(*it);
+	}
+
+	/* old crap
 	for (auto const& i : AFL)
 	{
 		if (sameEdge(i, e))
 		{
-			e->setColor(sf::Color::White);
 			AFL.remove(i);
 			return;
 		}
 	}
-	e->setColor(sf::Color::Cyan);
 	AFL.push_back(e);
+	*/
 }
 
 void Utils::dt_dewall(std::vector<Vertex*>& pointset)
@@ -273,7 +296,7 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 	sf::Vector2<double> pos2(alfa, 900);
 	Line* cuttingLine = new Line(sf::Vertex(sf::Vector2f(pos1), sf::Color::Cyan), sf::Vertex(sf::Vector2f(pos2), sf::Color::Cyan));
 
-	//std::vector<Edge*> hull = Utils::convexHull(pointset);
+	std::vector<Edge*> hull = Utils::convexHull(pointset);
 
 	double minDist1 = DBL_MAX;
 	double currentDistance;
@@ -390,12 +413,12 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 	//std::list<int> bigtriangleidx;
 	//std::list<Triangle*> bigtriangles;
 	int counter = 0;
-	while (!(AFL.empty()) && counter < 25000)
+	while (!(AFL.empty()) && counter < ITER_COUNT)
 	{
 		Edge* e = AFL.back();
 		AFL.pop_back();
 
-		Triangle* t = makeSimplex(e, pointset,alfa);
+		Triangle* t = makeSimplex(e, pointset,alfa,hull);
 		//triangles.push_back(t);		
 
 		if (t != nullptr)
@@ -548,6 +571,8 @@ inline bool Utils::containsEdge(std::vector<Edge*>& edges, Edge* f)
 
 inline bool Utils::sameEdge(Edge* A, Edge* B)
 {
+	if (A == B) return true;
+
 	if ((A->v1 == B->v1 && A->v2 == B->v2) || (A->v1 == B->v2 && A->v2 == B->v1))
 	{
 		return true;
@@ -558,13 +583,13 @@ inline bool Utils::sameEdge(Edge* A, Edge* B)
 	}
 }
 
-inline bool Utils::isIntersected(Edge * e, double alfa)
+inline bool Utils::isIntersected(Vertex* v1, Vertex* v2, double alfa)
 {
-	if (e->v1->position.x < alfa && e->v2->position.x > alfa)
+	if (v1->position.x < alfa && v2->position.x >= alfa)
 	{
 		return true;
 	}
-	else if (e->v2->position.x < alfa && e->v1->position.x > alfa)
+	else if (v2->position.x < alfa && v1->position.x >= alfa)
 	{
 		return true;
 	}

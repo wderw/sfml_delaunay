@@ -1,9 +1,23 @@
-﻿  Utils.cpp
-Utils.cpp(426): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
-  Utils.cpp(426): note: consider using '%zd' in the format string
+﻿  Circle.cpp
+Circle.cpp(26): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Edge.cpp
+  IRenderable.cpp
+  Line.cpp
+  Triangle.cpp
+  Utils.cpp
+Utils.cpp(449): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+  Utils.cpp(449): note: consider using '%zd' in the format string
+  Vertex.cpp
+  main.cpp
+main.cpp(44): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+main.cpp(115): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+main.cpp(121): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+main.cpp(127): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+main.cpp(133): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+main.cpp(199): warning C4244: 'argument': conversion from '::size_t' to 'float', possible loss of data
   Generating code
-  10 of 404 functions ( 2.5%) were compiled, the rest were copied from previous compilation.
+  13 of 498 functions ( 2.6%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    3 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   SFML_delaunay.vcxproj -> C:\Users\paran\documents\visual studio 2017\Projects\SFML_delaunay\x64\Release\SFML_delaunay.exe

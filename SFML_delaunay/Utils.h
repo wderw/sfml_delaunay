@@ -54,14 +54,14 @@ public:
 
 
 	// 3. algorytmy	
-	static bool isIntersected(Edge* e, double alfa);
+	static bool isIntersected(Vertex* v1, Vertex* v2, double alfa);
 	static void evaluateTriangle(int i, int j, int k, std::vector<Vertex*>& pointset);
 	static sf::Vector2<double>* circumCenter(sf::Vector2<double>& a, sf::Vector2<double>& b, sf::Vector2<double>& c);
 	static std::vector<Edge*> dt_bruteforce(std::vector<Vertex*> &pointset);
 	static void dt_dewall(std::vector<Vertex*>& pointset);
 	static double delaunayDistance(Edge* f, Vertex* p);
 	static std::vector<Edge*> convexHull(std::vector<Vertex*> &pointset);
-	static Triangle* makeSimplex(Edge* f, std::vector<Vertex*>& pointset,double alfa);
+	static Triangle* makeSimplex(Edge* f, std::vector<Vertex*>& pointset,double alfa, std::vector<Edge*>& hull);
 	static void updateAFL(std::list<Edge*>& AFL, Edge*);
 
 };

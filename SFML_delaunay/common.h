@@ -22,6 +22,7 @@
 
 
 #define VERTEX_COUNT 100000
+#define ITER_COUNT 2000
 
 // narzedzia
 class Utils;

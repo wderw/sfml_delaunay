@@ -16,9 +16,9 @@ Circle::Circle(sf::Vector2<double> center, double radius) : Circle()
 	this->radius = radius;
 
 	fillColor = sf::Color::Transparent;
-	outlineColor = sf::Color(Circle::redColorProgression, 225, 120);
+	outlineColor = sf::Color(255,255  ,255, 80);
 
-	shape.setOutlineThickness(2.0f);
+	shape.setOutlineThickness(0.01f);
 
 	this->shape.setOutlineColor(outlineColor);
 	this->shape.setFillColor(fillColor);
