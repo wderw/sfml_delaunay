@@ -13,6 +13,7 @@ public:
 		MessageBoxA(NULL, wiadomosc.c_str(), "Info", MB_ICONINFORMATION | MB_OK);
 	}
 
+	static int theEnd;
 	static bool vertexComparatorX(Vertex* A, Vertex* B);
 
 	static void sortByX(std::vector<Vertex*>& pointset);
@@ -61,7 +62,7 @@ public:
 	static void dt_dewall(std::vector<Vertex*>& pointset);
 	static double delaunayDistance(Edge* f, Vertex* p);
 	static std::vector<Edge*> convexHull(std::vector<Vertex*> &pointset);
-	static Triangle* makeSimplex(Edge* f, std::vector<Vertex*>& pointset,double alfa, std::vector<Edge*>& hull);
+	static Triangle* makeSimplex(Edge* f, std::vector<Vertex*>& pointset,double alfa);
 	static void updateAFL(std::list<Edge*>& AFL, Edge*);
 
 };

@@ -40,10 +40,12 @@ void Edge::render(sf::RenderWindow * window)
 	/*
 	sf::Vertex line[] =
 	{
-	sf::Vertex(v1->position,color1),
-	sf::Vertex(v2->position,color2)
+	sf::Vertex(sf::Vector2f(v1->position),color1),
+	sf::Vertex(sf::Vector2f(v2->position),color2)
 	};
+	
 
 	window->draw(line, 2, sf::Lines);
 	*/
+
 }

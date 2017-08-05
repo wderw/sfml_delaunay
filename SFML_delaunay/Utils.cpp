@@ -8,6 +8,8 @@
 #include "Line.h"
 
 int Circle::redColorProgression = 0;
+int Utils::theEnd = 0;
+
 
 inline bool Utils::vertexComparatorX(Vertex * A, Vertex * B)
 {
@@ -174,7 +176,7 @@ std::vector<Edge*> Utils::convexHull(std::vector<Vertex*> &pointset)
 	return result;
 }
 
-Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double alfa, std::vector<Edge*> &hull)
+Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double alfa)
 {
 	double minDD = DBL_MAX;
 	//double minDD = 50;
@@ -207,36 +209,23 @@ Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double al
 
 	if (best != nullptr)
 	{
-		for (int i = 0; i < hull.size(); ++i)
-		{
-			if (sameEdge(f, hull[i]))
-			{
-				return nullptr;
-			}			
-		}
-
-		// buduj tylko sciane
+		/* buduj tylko sciane
 		if (!isIntersected(f->v1, best, alfa) && !isIntersected(f->v2,best, alfa))
 		{
 			return nullptr;
 		}
-		else
-		{
-			Edge *e1, *e2;
-			e1 = new Edge(f->v1, best);
-			e2 = new Edge(f->v2, best);
-
-			sf::Vector2<double> origin(Utils::triangleCenterOfMass(f->v1, f->v2, best));
-			e1->setOrigin(origin);
-			e2->setOrigin(origin);		
+		*/
+		Edge *e1, *e2;
+		e1 = new Edge(f->v1, best);
+		e2 = new Edge(f->v2, best);
+				
+		sf::Vector2<double> origin(Utils::triangleCenterOfMass(f->v1, f->v2, best));
+		e1->setOrigin(origin);
+		e2->setOrigin(origin);		
 		
-			Triangle* t = new Triangle(e1, e2, f);
+		Triangle* t = new Triangle(e1, e2, f);
 
-			sf::Vector2<double> *center = circumCenter(f->v1->position, f->v2->position, best->position);
-			double radius = vectorMagnitude(&sf::Vector2<double>(center->x - f->v1->position.x, center->y - f->v1->position.y));
-			Circle *c = new Circle(*center,radius);
-			return t;
-		}
+		return t;
 	}
 	else
 	{
@@ -296,7 +285,7 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 	sf::Vector2<double> pos2(alfa, 900);
 	Line* cuttingLine = new Line(sf::Vertex(sf::Vector2f(pos1), sf::Color::Cyan), sf::Vertex(sf::Vector2f(pos2), sf::Color::Cyan));
 
-	std::vector<Edge*> hull = Utils::convexHull(pointset);
+	//std::vector<Edge*> hull = Utils::convexHull(pointset);
 
 	double minDist1 = DBL_MAX;
 	double currentDistance;
@@ -383,8 +372,6 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 	p2->fillColor = sf::Color::White;
 	p3->fillColor = sf::Color::Cyan;
 
-	//utils::dt_bruteforce(pointset);
-
 	/* generic simplex: */
 	Edge* f = new Edge(p1, p2);
 	Edge* f2 = new Edge(p2, p3);
@@ -399,105 +386,32 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 
 	Triangle* t0 = new Triangle(f, f2, f3);
 
-	t0->e0->setColor(sf::Color::Red);
-	t0->e1->setColor(sf::Color::Red);
-	t0->e2->setColor(sf::Color::Red);
-
+	// oznacz pierwszy trojkat na czerwono
+	//t0->e0->setColor(sf::Color::Red);
+	//t0->e1->setColor(sf::Color::Red);
+	//t0->e2->setColor(sf::Color::Red);
 
 	updateAFL(AFL, f);
 	updateAFL(AFL, f2);
 	updateAFL(AFL, f3);
 
-	//std::vector<Triangle*> triangles;
-	//int count = 0;
-	//std::list<int> bigtriangleidx;
-	//std::list<Triangle*> bigtriangles;
+	// ogranicznik ilosci iteracji
 	int counter = 0;
-	while (!(AFL.empty()) && counter < ITER_COUNT)
+	while (!(AFL.empty())) // && counter < ITER_COUNT)
 	{
 		Edge* e = AFL.back();
 		AFL.pop_back();
 
-		Triangle* t = makeSimplex(e, pointset,alfa,hull);
-		//triangles.push_back(t);		
+		Triangle* t = makeSimplex(e, pointset,alfa);
 
 		if (t != nullptr)
 		{
 			
 			updateAFL(AFL, t->e0);
-			updateAFL(AFL, t->e1);
-			/*
-			Edge* e0 = t->e0;
-			Edge* e1 = t->e1;
-			Edge* e2 = t->e2;
-
-			double a0 = abs(e0->v1->position.x - e0->v2->position.x);
-			double a1 = abs(e1->v1->position.x - e1->v2->position.x);
-			double a2 = abs(e2->v1->position.x - e2->v2->position.x);
-
-			if (a0 > 50 || a1 > 50 || a2 > 50)
-			{
-				bigtriangleidx.push_back(count);
-				bigtriangles.push_back(t);
-			}
-			count++;
-			*/
-			
+			updateAFL(AFL, t->e1);		
 		}
 		counter++;
 	}
-	printf("%d\n", AFL.size());
-	//printf("size: %d\n", triangles.size());
-	//while (!bigtriangleidx.empty())
-	{
-	/*	
-		printf("idx no. %d\n", bigtriangleidx.back());
-		int idx = bigtriangleidx.back();
-		bigtriangleidx.pop_back();
-
-		Triangle* t = bigtriangles.back();
-		Edge* e0 = t->e0;
-		Edge* e1 = t->e1;
-		Edge* e2 = t->e2;
-		printf("<--- e0 = v1: (%f, %f) v2: (%f, %f)\n", e0->v1->position.x, e0->v1->position.y, e0->v2->position.x, e0->v2->position.y);
-		printf("<--- e1 = v1: (%f, %f) v2: (%f, %f)\n", e1->v1->position.x, e1->v1->position.y, e1->v2->position.x, e1->v2->position.y);
-		printf("<--- e2 = v1: (%f, %f) v2: (%f, %f)\n", e2->v1->position.x, e2->v1->position.y, e2->v2->position.x, e2->v2->position.y);
-		
-		//printf("%f, %f\n", e0->simplex_origin.x, e0->simplex_origin.y);
-
-		*/
-		//if (idx == 198)
-		{
-			//Vertex* v1 = e0->v1;
-			//Vertex* v2 = e0->v2;
-			//Vertex* v3 = e1->v1;
-			/*
-			sf::Vector2<double>* origin = new sf::Vector2<double>(700.0f, 450.0f);
-			double test = Utils::sameHalfspaceTestCheck(e2, v2, *origin);
-			printf("<!!! test: %f",test);
-			if (test > 0) printf("same halfspace\n");
-			else if (test < 0) printf("different halfspace\n");
-			else if (test == 0) printf("on the same line\n");
-			*/
-			/*
-			sf::Vector2<double>* circumcenter = Utils::circumCenter(v1->position, v3->position, v2->position);
-			double radius = Utils::vectorMagnitude(&sf::Vector2<double>(circumcenter->x - v2->position.x, circumcenter->y - v2->position.y));
-			printf("v1: %f, %f v2: %f, %f v3: %f, %f\n", v1->position.x, v1->position.y, v3->position.x, v3->position.y, v2->position.x, v2->position.y);
-			printf("radius: %f\ncircumcenter: %f, %f\n", radius, circumcenter->x, circumcenter->y);
-			*/
-		}
-		
-		/*int test = Utils::sameHalfspaceTest(e0, e1->v1, e0->simplex_origin);
-
-		printf("<!!! test: ");
-		if (test > 0) printf("same halfspace\n");
-		else if (test < 0) printf("different halfspace\n");
-		else if (test == 0) printf("on the same line\n");
-		*/
-		//bigtriangles.pop_back();
-	}
-	//msgbox(std::to_string(triangles.size));
-
 }
 
 // funkcja delaunay distance (dd) zdefiniowana w publikacji algorytmu DeWall

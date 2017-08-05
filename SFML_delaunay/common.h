@@ -6,6 +6,7 @@
 #include <vector>
 #include <list>
 #include <algorithm>
+#include <iostream>
 
 #include <cmath>
 #ifndef M_PI
@@ -21,8 +22,10 @@
 #define FIRST_SIMPLEX_OFFSET_EPSILON 0.0000000000001
 
 
-#define VERTEX_COUNT 100000
-#define ITER_COUNT 2000
+#define VERTEX_COUNT 7000
+#define ITER_COUNT 1300
+
+//706 iteracja = odbicie od dolnej sciany
 
 // narzedzia
 class Utils;

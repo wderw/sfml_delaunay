@@ -10,13 +10,12 @@
 
 int main()
 {
-	//time_t randomSeed = time(NULL);
-	//int randomSeed = time(NULL);
-	//srand(randomSeed);
+	time_t randomSeed = time(NULL);
+	srand(randomSeed);
 
-	//printf("seed: %d\n", randomSeed);
-	//srand(1531);
-	srand(1501925017);
+	printf("seed: %d\n", randomSeed);
+	srand(1531);
+	//srand(1501925017);
 
 	// zaladuj fonty
 	sf::Font font;
@@ -46,7 +45,7 @@ int main()
 	/* automatyczne generowanie punktow */
 	for (int i = 0; i < VERTEX_COUNT; ++i)
 	{
-		double quake = 0.0;// static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
+		double quake = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 		Vertex* newVertex = new Vertex(rand() % ((int)window.getSize().x - 120) + 60 + quake, rand() % ((int)window.getSize().y - 120) + 60 + quake);
 	}
 
