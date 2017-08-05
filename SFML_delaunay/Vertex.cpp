@@ -6,7 +6,7 @@ Vertex::Vertex()
 {
 	Vertex::vertices.push_back(this);
 }
-Vertex::Vertex(float x, float y) : Vertex()
+Vertex::Vertex(double x, double y) : Vertex()
 {
 	position.x = x;
 	position.y = y;
@@ -20,20 +20,20 @@ Vertex::Vertex(float x, float y) : Vertex()
 	this->shape.setFillColor(fillColor);
 
 	this->shape.setRadius(1.0f);
-	this->shape.setPosition(position);
+	this->shape.setPosition(sf::Vector2f(position));
 }
 
-inline void Vertex::moveTo(float x, float y)
+inline void Vertex::moveTo(double x, double y)
 {
 	this->position.x = x;
 	this->position.y = y;
 }
 
-inline void Vertex::moveTo(sf::Vector2f newPos)
+inline void Vertex::moveTo(sf::Vector2<double> newPos)
 {
 	this->position = newPos;
 }
-void Vertex::moveBy(float x, float y)
+void Vertex::moveBy(double x, double y)
 {
 	this->position.x += x;
 	this->position.y += y;
@@ -43,7 +43,7 @@ void Vertex::render(sf::RenderWindow *window)
 {
 	this->shape.setOutlineColor(outlineColor);
 	this->shape.setFillColor(fillColor);
-	sf::Vector2f offset(shape.getRadius(), shape.getRadius());
+	sf::Vector2<double> offset(shape.getRadius(), shape.getRadius());
 	this->shape.setPosition(position - offset);
 	window->draw(shape);
 }

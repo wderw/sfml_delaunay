@@ -8,17 +8,17 @@ class Vertex// : public IRenderable
 public:
 	static std::vector<Vertex*> vertices;
 
-	sf::Vector2f position;
+	sf::Vector2<double> position;
 	sf::CircleShape shape;
 	sf::Color fillColor;
 	sf::Color outlineColor;
 
 	Vertex();
-	Vertex(float, float);
+	Vertex(double, double);
 
-	inline void moveTo(float, float);
-	inline void moveTo(sf::Vector2f);
-	void moveBy(float, float);
+	inline void moveTo(double, double);
+	inline void moveTo(sf::Vector2<double>);
+	void moveBy(double, double);
 
 	//virtual void render(sf::RenderWindow *window);
 };

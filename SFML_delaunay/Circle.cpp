@@ -2,7 +2,7 @@
 
 Circle::Circle()
 {
-	center = sf::Vector2f(0.0f, 0.0f);
+	center = sf::Vector2<double>(0.0, 0.0);
 	radius = 0.0f;
 	if (!(Circle::redColorProgression + 35 > 255))
 	{
@@ -10,7 +10,7 @@ Circle::Circle()
 	}
 }
 
-Circle::Circle(sf::Vector2f center, float radius) : Circle()
+Circle::Circle(sf::Vector2<double> center, double radius) : Circle()
 {
 	this->center = center;
 	this->radius = radius;
@@ -24,7 +24,7 @@ Circle::Circle(sf::Vector2f center, float radius) : Circle()
 	this->shape.setFillColor(fillColor);
 
 	this->shape.setRadius(radius);
-	this->shape.setPosition(center);
+	this->shape.setPosition(sf::Vector2f(center));
 
 	this->shape.setPointCount(100);
 }
@@ -33,7 +33,7 @@ void Circle::render(sf::RenderWindow * window)
 {
 	//this->shape.setOutlineColor(outlineColor);
 	//this->shape.setFillColor(fillColor);
-	sf::Vector2f offset(shape.getRadius(), shape.getRadius());
-	this->shape.setPosition(center - offset);
+	sf::Vector2<double> offset(shape.getRadius(), shape.getRadius());
+	this->shape.setPosition(sf::Vector2f(center - offset));
 	window->draw(shape);
 }

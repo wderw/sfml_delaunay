@@ -10,11 +10,13 @@
 
 int main()
 {
-	time_t asd = time(NULL);
-	//srand(asd);
-	printf("seed: %d\n", asd);
+	//time_t randomSeed = time(NULL);
+	//int randomSeed = time(NULL);
+	//srand(randomSeed);
+
+	//printf("seed: %d\n", randomSeed);
 	//srand(1531);
-	srand(1501757015);
+	srand(1501920831);
 	// zaladuj fonty
 	sf::Font font;
 	if (!font.loadFromFile("cour.ttf"))
@@ -41,9 +43,9 @@ int main()
 	mousePosText.setPosition(static_cast<double>(mousePosText.getCharacterSize()), static_cast<double>(windowSize.y) - mousePosText.getCharacterSize() * 2);
 
 	/* automatyczne generowanie punktow */
-	for (int i = 0; i < VERTEX_COUNT; i++)
+	for (int i = 0; i < VERTEX_COUNT; ++i)
 	{
-		double quake = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
+		double quake = 0.0;// static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 		Vertex* newVertex = new Vertex(rand() % ((int)window.getSize().x - 120) + 60 + quake, rand() % ((int)window.getSize().y - 120) + 60 + quake);
 	}
 
@@ -52,8 +54,6 @@ int main()
 	//window.setView(view);
 	//view.zoom(0.24f);
 	//view.move(245, -140);
-
-
 
 	// zmierz czas wykonania
 	sf::Clock clock;
@@ -64,7 +64,7 @@ int main()
 	sf::Time time = clock.restart();
 	double timeMilliseconds = time.asMilliseconds();
 	//Utils::msgbox(std::to_string(timeMilliseconds));
-	printf("elapsed time: %lf\nseed: %d\n", timeMilliseconds,asd);
+	//printf("elapsed time: %lf\nseed: %d\n", timeMilliseconds,randomSeed);
 	//utils::msgbox(std::to_string(e.size()));
 	//utils::dt_bruteforce(vertex::vertices);
 
@@ -138,19 +138,19 @@ int main()
 				{
 					/* wyswietl pozycje kursora */
 					sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-					std::string s_MousePos = Utils::vectorDescription(&mousePos, "Mouse");
+					std::string s_MousePos = Utils::vectorDescription(&sf::Vector2<double>(mousePos), "Mouse");
 					mousePosText.setString(s_MousePos);
 
 					// podswietl wierzcholki bliskie kursora 
 					// uwaga: ultra nieefektywne 				
-					for (int i = 0; i < IRenderable::renderables.size(); i++)
+					for (int i = 0; i < IRenderable::renderables.size(); ++i)
 					{
 						IRenderable* pRenderable = IRenderable::renderables[i];
 						Vertex* highlightCandidate = dynamic_cast<Vertex*>(pRenderable);
 
 						if (highlightCandidate != nullptr)
 						{
-							sf::Vector2f difference = mousePos - highlightCandidate->position;
+							sf::Vector2<double> difference = sf::Vector2<double>(mousePos) - highlightCandidate->position;
 							double distance = Utils::vectorMagnitude(&difference);
 							if (distance < VERTEX_SNAP_DISTANCE)
 							{
@@ -159,7 +159,7 @@ int main()
 								highlightCandidate->shape.setOutlineThickness(4.5f);
 								highlightCandidate->outlineColor = sf::Color(CUSTOM_GREEN);
 
-								std::string sVertexInfo = Utils::vectorDescription(&highlightCandidate->position, "\nCurrent vertex");
+								std::string sVertexInfo = Utils::vectorDescription(&sf::Vector2<double>(highlightCandidate->position), "\nCurrent vertex");
 								mousePosText.setString(mousePosText.getString() + sVertexInfo);
 							}
 							else
@@ -184,7 +184,7 @@ int main()
 		// rysowanie
 		window.clear(sf::Color(CUSTOM_BLACK));
 
-		for (int i = 0; i < IRenderable::renderables.size(); i++)
+		for (int i = 0; i < IRenderable::renderables.size(); ++i)
 		{
 			IRenderable* pRenderable = IRenderable::renderables.at(i);
 			if (pRenderable && pRenderable->isVisible())

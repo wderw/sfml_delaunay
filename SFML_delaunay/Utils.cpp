@@ -29,15 +29,15 @@ inline void Utils::sortByX(std::vector<Vertex*>& pointset)
 // wyznaczanej przez wektor f
 // przypadek w ktorym punkt cp lub p leza na linii(f) moze powodowac problemy
 // todo: funkcja powinna zwracac inna wartosc niz false/true np. (1,0,-1) w zaleznosci od znaku iloczynu iloczynow skalarnych.
-int Utils::sameHalfspaceTest(Edge * f, Vertex * p, sf::Vector2f &cp)
+int Utils::sameHalfspaceTest(Edge * f, Vertex * p, sf::Vector2<double> &cp)
 {
-	sf::Vector2f v(f->v2->position.x - f->v1->position.x, f->v2->position.y - f->v1->position.y);
-	sf::Vector2f w(v.y, -v.x);
+	sf::Vector2<double> v(f->v2->position.x - f->v1->position.x, f->v2->position.y - f->v1->position.y);
+	sf::Vector2<double> w(v.y, -v.x);
 
-	float result_p = Utils::dotProduct(&(p->position - f->v1->position), &w);
-	float result_cp = Utils::dotProduct(&(cp - f->v1->position), &w);
+	double result_p = Utils::dotProduct(&(p->position - f->v1->position), &w);
+	double result_cp = Utils::dotProduct(&(cp - f->v1->position), &w);
 
-	float result = result_p * result_cp;
+	double result = result_p * result_cp;
 	//return result;
 	
 	if (result < 0) // rozne strony linii
@@ -54,27 +54,27 @@ int Utils::sameHalfspaceTest(Edge * f, Vertex * p, sf::Vector2f &cp)
 	}
 }
 
-inline float Utils::sameHalfspaceTestCheck(Edge * f, Vertex * p, sf::Vector2f &cp)
+inline double Utils::sameHalfspaceTestCheck(Edge * f, Vertex * p, sf::Vector2<double> &cp)
 {
-	sf::Vector2f v(f->v2->position.x - f->v1->position.x, f->v2->position.y - f->v1->position.y);
-	sf::Vector2f w(v.y, -v.x);
+	sf::Vector2<double> v(f->v2->position.x - f->v1->position.x, f->v2->position.y - f->v1->position.y);
+	sf::Vector2<double> w(v.y, -v.x);
 
-	float result_p = Utils::dotProduct(&(p->position - f->v1->position), &w);
-	float result_cp = Utils::dotProduct(&(cp - f->v1->position), &w);
+	double result_p = Utils::dotProduct(&(p->position - f->v1->position), &w);
+	double result_cp = Utils::dotProduct(&(cp - f->v1->position), &w);
 
-	float result = result_p * result_cp;
+	double result = result_p * result_cp;
 	return result;
 
 }
 
-inline float Utils::vectorMagnitude(sf::Vector2f * vec)
+inline double Utils::vectorMagnitude(sf::Vector2<double> * vec)
 {
-	return sqrtf(vec->x*vec->x + vec->y*vec->y);
+	return sqrt(vec->x*vec->x + vec->y*vec->y);
 }
 
-inline sf::Vector2f Utils::triangleCenterOfMass(Vertex * a, Vertex * b, Vertex * c)
+inline sf::Vector2<double> Utils::triangleCenterOfMass(Vertex * a, Vertex * b, Vertex * c)
 {
-	return sf::Vector2f((a->position.x + b->position.x + c->position.x) / 3,
+	return sf::Vector2<double>((a->position.x + b->position.x + c->position.x) / 3,
 		(a->position.y + b->position.y + c->position.y) / 3);
 }
 // patrz wikipedia: algorytm jarvisa
@@ -93,13 +93,13 @@ std::vector<Edge*> Utils::convexHull(std::vector<Vertex*> &pointset)
 	}
 
 	// find vertex with minimal y
-	float ymin = FLT_MAX;
+	double ymin = DBL_MAX;
 
 	Vertex* current = pointset[0];
 	Vertex* min = nullptr;
 	ymin = current->position.y;
 
-	for (int i = 0; i < pointset.size(); i++)
+	for (int i = 0; i < pointset.size(); ++i)
 	{
 		current = pointset[i];
 		if (current->position.y < ymin)
@@ -115,20 +115,20 @@ std::vector<Edge*> Utils::convexHull(std::vector<Vertex*> &pointset)
 	current = min;
 	Vertex* candidate = nullptr;
 	Vertex* best = nullptr;
-	sf::Vector2f u(1, 0); // wektor jednostkowy poczatkowy (tylko dla najwyzszego wierzcholka)
-	float minAngle = FLT_MAX; // fltmax jest w tym przypadku bezpieczny i szybszy niz inicjalizacja
-	sf::Vector2f previousVector;
+	sf::Vector2<double> u(1, 0); // wektor jednostkowy poczatkowy (tylko dla najwyzszego wierzcholka)
+	double minAngle = DBL_MAX; // fltmax jest w tym przypadku bezpieczny i szybszy niz inicjalizacja
+	sf::Vector2<double> previousVector;
 
 	// pierwsza krawedz	
-	for (int i = 0; i < pointset.size(); i++)
+	for (int i = 0; i < pointset.size(); ++i)
 	{
 		candidate = pointset[i];
 		if (candidate == current) continue;
 
-		sf::Vector2f v(candidate->position.x - current->position.x, candidate->position.y - current->position.y);
+		sf::Vector2<double> v(candidate->position.x - current->position.x, candidate->position.y - current->position.y);
 
 
-		float angle = Utils::vectorAngleBetween(&u, &v);
+		double angle = Utils::vectorAngleBetween(&u, &v);
 		if (angle < minAngle)
 		{
 			minAngle = angle;
@@ -140,23 +140,23 @@ std::vector<Edge*> Utils::convexHull(std::vector<Vertex*> &pointset)
 	Edge* e = new Edge(current, best);
 	result.push_back(e);
 	current = best;
-	minAngle = FLT_MAX;
+	minAngle = DBL_MAX;
 
-	sf::Vector2f resultVector = previousVector;
+	sf::Vector2<double> resultVector = previousVector;
 
 	// wrap
 	while (best != min)
 	{
 		//best->fillColor = sf::Color::Cyan;
 
-		for (int i = 0; i < pointset.size(); i++)
+		for (int i = 0; i < pointset.size(); ++i)
 		{
 			candidate = pointset[i];
 			if (candidate == current) continue;
 
-			sf::Vector2f v(candidate->position.x - current->position.x, candidate->position.y - current->position.y);
+			sf::Vector2<double> v(candidate->position.x - current->position.x, candidate->position.y - current->position.y);
 
-			float angle = Utils::vectorAngleBetween(&resultVector, &v);
+			double angle = Utils::vectorAngleBetween(&resultVector, &v);
 			if (angle < minAngle)
 			{
 				minAngle = angle;
@@ -168,19 +168,19 @@ std::vector<Edge*> Utils::convexHull(std::vector<Vertex*> &pointset)
 		e = new Edge(current, best);
 		result.push_back(e);
 		current = best;
-		minAngle = FLT_MAX;
+		minAngle = DBL_MAX;
 		resultVector = previousVector;
 	}
 	return result;
 }
 
-Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, float alfa)
+Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double alfa)
 {
-	float minDD = FLT_MAX;
-	//float minDD = 50;
+	double minDD = DBL_MAX;
+	//double minDD = 50;
 	Vertex* best = nullptr;
 
-	for (int i = 0; i < pointset.size(); ++i)
+	for (register int i = 0; i < pointset.size(); ++i)
 	{
 		Vertex* p = pointset[i];
 
@@ -197,7 +197,7 @@ Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, float alf
 		}
 		
 
-		float currentDD = Utils::delaunayDistance(f, p);
+		double currentDD = Utils::delaunayDistance(f, p);
 
 		if ((currentDD < minDD))
 		{
@@ -218,15 +218,15 @@ Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, float alf
 		Edge* e1 = new Edge(f->v1, best);
 		Edge* e2 = new Edge(f->v2, best);
 
-		sf::Vector2f origin(Utils::triangleCenterOfMass(f->v1, f->v2, best));
+		sf::Vector2<double> origin(Utils::triangleCenterOfMass(f->v1, f->v2, best));
 		e1->setOrigin(origin);
 		e2->setOrigin(origin);
 
 		// buduj tylko sciane
-		//if (!isIntersected(e1, alfa) && !isIntersected(e2, alfa))
+		if (!isIntersected(e1, alfa) && !isIntersected(e2, alfa))
 		{
 			//t->setVisible(false);
-			//return nullptr;
+			return nullptr;
 		}
 		
 		
@@ -249,10 +249,12 @@ inline void Utils::updateAFL(std::list<Edge*>& AFL, Edge* e)
 	{
 		if (sameEdge(i, e))
 		{
+			e->setColor(sf::Color::White);
 			AFL.remove(i);
 			return;
 		}
 	}
+	e->setColor(sf::Color::Cyan);
 	AFL.push_back(e);
 }
 
@@ -265,16 +267,16 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 
 	Utils::sortByX(pointset);
 
-	float alfa = pointset[(pointset.size() / 2)]->position.x + FIRST_SIMPLEX_OFFSET_EPSILON;
+	double alfa = pointset[(pointset.size() / 2)]->position.x + FIRST_SIMPLEX_OFFSET_EPSILON;
 
-	sf::Vector2f pos1(alfa, 0);
-	sf::Vector2f pos2(alfa, 900);
-	Line* cuttingLine = new Line(sf::Vertex(pos1, sf::Color::Cyan), sf::Vertex(pos2, sf::Color::Cyan));
+	sf::Vector2<double> pos1(alfa, 0);
+	sf::Vector2<double> pos2(alfa, 900);
+	Line* cuttingLine = new Line(sf::Vertex(sf::Vector2f(pos1), sf::Color::Cyan), sf::Vertex(sf::Vector2f(pos2), sf::Color::Cyan));
 
 	//std::vector<Edge*> hull = Utils::convexHull(pointset);
 
-	float minDist1 = FLT_MAX;
-	float currentDistance;
+	double minDist1 = DBL_MAX;
+	double currentDistance;
 	Vertex* currentVertex = nullptr, *p1 = nullptr;
 
 	// MakeFirstSimplex:
@@ -304,7 +306,7 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 
 
 	// znajdz p2 po drugiej stronie
-	minDist1 = FLT_MAX;
+	minDist1 = DBL_MAX;
 	currentDistance = 0;
 	currentVertex = nullptr;
 	Vertex* p2 = nullptr;
@@ -332,12 +334,12 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 	p2->fillColor = sf::Color::Red;
 
 	// znajdz p3
-	float minRadius = FLT_MAX;
-	float currentRadius;
+	double minRadius = DBL_MAX;
+	double currentRadius;
 	currentVertex = nullptr;
 	currentDistance = 0;
 	Vertex* p3 = nullptr;
-	sf::Vector2f* circumcenter;
+	sf::Vector2<double>* circumcenter;
 
 	for (int i = 0; i < pointset.size(); ++i)
 	{
@@ -345,7 +347,7 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 		circumcenter = Utils::circumCenter(p1->position, p2->position, currentVertex->position);
 		if (circumcenter != nullptr)
 		{
-			currentRadius = Utils::vectorMagnitude(&sf::Vector2f(circumcenter->x - p1->position.x, circumcenter->y - p1->position.y));
+			currentRadius = Utils::vectorMagnitude(&sf::Vector2<double>(circumcenter->x - p1->position.x, circumcenter->y - p1->position.y));
 
 			if (currentRadius < minRadius)
 			{
@@ -365,9 +367,9 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 	Edge* f2 = new Edge(p2, p3);
 	Edge* f3 = new Edge(p3, p1);
 
-	f->setOrigin(sf::Vector2f(Utils::triangleCenterOfMass(p1, p2, p3)));
-	f2->setOrigin(sf::Vector2f(Utils::triangleCenterOfMass(p1, p2, p3)));
-	f3->setOrigin(sf::Vector2f(Utils::triangleCenterOfMass(p1, p2, p3)));
+	f->setOrigin(sf::Vector2<double>(Utils::triangleCenterOfMass(p1, p2, p3)));
+	f2->setOrigin(sf::Vector2<double>(Utils::triangleCenterOfMass(p1, p2, p3)));
+	f3->setOrigin(sf::Vector2<double>(Utils::triangleCenterOfMass(p1, p2, p3)));
 
 	std::list<Edge*> AFL;
 
@@ -388,16 +390,13 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 	//std::list<int> bigtriangleidx;
 	//std::list<Triangle*> bigtriangles;
 	int counter = 0;
-	while (!(AFL.empty()) && counter < 9350)
+	while (!(AFL.empty()) && counter < 25000)
 	{
 		Edge* e = AFL.back();
 		AFL.pop_back();
 
 		Triangle* t = makeSimplex(e, pointset,alfa);
-		//triangles.push_back(t);
-		
-
-		
+		//triangles.push_back(t);		
 
 		if (t != nullptr)
 		{
@@ -409,9 +408,9 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 			Edge* e1 = t->e1;
 			Edge* e2 = t->e2;
 
-			float a0 = abs(e0->v1->position.x - e0->v2->position.x);
-			float a1 = abs(e1->v1->position.x - e1->v2->position.x);
-			float a2 = abs(e2->v1->position.x - e2->v2->position.x);
+			double a0 = abs(e0->v1->position.x - e0->v2->position.x);
+			double a1 = abs(e1->v1->position.x - e1->v2->position.x);
+			double a2 = abs(e2->v1->position.x - e2->v2->position.x);
 
 			if (a0 > 50 || a1 > 50 || a2 > 50)
 			{
@@ -450,16 +449,16 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 			//Vertex* v2 = e0->v2;
 			//Vertex* v3 = e1->v1;
 			/*
-			sf::Vector2f* origin = new sf::Vector2f(700.0f, 450.0f);
-			float test = Utils::sameHalfspaceTestCheck(e2, v2, *origin);
+			sf::Vector2<double>* origin = new sf::Vector2<double>(700.0f, 450.0f);
+			double test = Utils::sameHalfspaceTestCheck(e2, v2, *origin);
 			printf("<!!! test: %f",test);
 			if (test > 0) printf("same halfspace\n");
 			else if (test < 0) printf("different halfspace\n");
 			else if (test == 0) printf("on the same line\n");
 			*/
 			/*
-			sf::Vector2f* circumcenter = Utils::circumCenter(v1->position, v3->position, v2->position);
-			float radius = Utils::vectorMagnitude(&sf::Vector2f(circumcenter->x - v2->position.x, circumcenter->y - v2->position.y));
+			sf::Vector2<double>* circumcenter = Utils::circumCenter(v1->position, v3->position, v2->position);
+			double radius = Utils::vectorMagnitude(&sf::Vector2<double>(circumcenter->x - v2->position.x, circumcenter->y - v2->position.y));
 			printf("v1: %f, %f v2: %f, %f v3: %f, %f\n", v1->position.x, v1->position.y, v3->position.x, v3->position.y, v2->position.x, v2->position.y);
 			printf("radius: %f\ncircumcenter: %f, %f\n", radius, circumcenter->x, circumcenter->y);
 			*/
@@ -479,13 +478,13 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset)
 }
 
 // funkcja delaunay distance (dd) zdefiniowana w publikacji algorytmu DeWall
-inline float Utils::delaunayDistance(Edge * f, Vertex * p)
+inline double Utils::delaunayDistance(Edge * f, Vertex * p)
 {
-	sf::Vector2f* circumcenter = Utils::circumCenter(f->v1->position, f->v2->position, p->position);
+	sf::Vector2<double>* circumcenter = Utils::circumCenter(f->v1->position, f->v2->position, p->position);
 
 	if (circumcenter != nullptr)
 	{
-		float radius = Utils::vectorMagnitude(&sf::Vector2f(circumcenter->x - p->position.x, circumcenter->y - p->position.y));
+		double radius = Utils::vectorMagnitude(&sf::Vector2<double>(circumcenter->x - p->position.x, circumcenter->y - p->position.y));
 
 		if (sameHalfspaceTest(f, p, *circumcenter) >= 0)
 		{
@@ -496,36 +495,36 @@ inline float Utils::delaunayDistance(Edge * f, Vertex * p)
 			return -radius;
 		}
 	}
-	else return FLT_MAX;
+	else return DBL_MAX;
 }
 
-inline sf::Vector2f Utils::vectorNormalized(sf::Vector2f * original)
+inline sf::Vector2<double> Utils::vectorNormalized(sf::Vector2<double> * original)
 {
-	float length = Utils::vectorMagnitude(original);
-	sf::Vector2f normalized(original->x / length, original->y / length);
+	double length = Utils::vectorMagnitude(original);
+	sf::Vector2<double> normalized(original->x / length, original->y / length);
 	return normalized;
 }
 
-inline void Utils::vectorNormalize(sf::Vector2f * modified)
+inline void Utils::vectorNormalize(sf::Vector2<double> * modified)
 {
-	float length = Utils::vectorMagnitude(modified);
+	double length = Utils::vectorMagnitude(modified);
 	modified->x /= length;
 	modified->y /= length;
 }
 
-inline float Utils::dotProduct(sf::Vector2f * v1, sf::Vector2f * v2)
+inline double Utils::dotProduct(sf::Vector2<double> * v1, sf::Vector2<double> * v2)
 {
 	return (v1->x*v2->x) + (v1->y*v2->y);
 }
 
-inline float Utils::vectorAngleBetween(sf::Vector2f * v1, sf::Vector2f * v2)
+inline double Utils::vectorAngleBetween(sf::Vector2<double> * v1, sf::Vector2<double> * v2)
 {
-	sf::Vector2f v1_n = Utils::vectorNormalized(v1);
-	sf::Vector2f v2_n = Utils::vectorNormalized(v2);
-	return acosf(Utils::dotProduct(&v1_n, &v2_n));
+	sf::Vector2<double> v1_n = Utils::vectorNormalized(v1);
+	sf::Vector2<double> v2_n = Utils::vectorNormalized(v2);
+	return acos(Utils::dotProduct(&v1_n, &v2_n));
 }
 
-std::string Utils::vectorDescription(sf::Vector2f * vec, char * description)
+std::string Utils::vectorDescription(sf::Vector2<double> * vec, char * description)
 {
 	std::string result = std::string(description) +
 		std::string(": [x:") + std::to_string(vec->x) +
@@ -559,7 +558,7 @@ inline bool Utils::sameEdge(Edge* A, Edge* B)
 	}
 }
 
-inline bool Utils::isIntersected(Edge * e, float alfa)
+inline bool Utils::isIntersected(Edge * e, double alfa)
 {
 	if (e->v1->position.x < alfa && e->v2->position.x > alfa)
 	{
@@ -590,19 +589,19 @@ void  Utils::evaluateTriangle(int i, int j, int k, std::vector<Vertex*>& pointse
 		// Funkcja Circumcenter
 		// zwraca środek okręgu opisanego na trójkącie ijk i wrzuca rezultat do zmiennej
 		// circumcenter.
-		sf::Vector2f* circumcenter = Utils::circumCenter(pointset[i]->position, pointset[j]->position, pointset[k]->position);
+		sf::Vector2<double>* circumcenter = Utils::circumCenter(pointset[i]->position, pointset[j]->position, pointset[k]->position);
 		if (circumcenter == nullptr) return;
 
 		// policz promień koła opisanego na trójkącie ijk.
-		float diffX = circumcenter->x - pointset[i]->position.x;
-		float diffY = circumcenter->y - pointset[i]->position.y;
-		//float distance = (float)Math.Sqrt(diffX * diffX + diffY * diffY);
-		float distance = Utils::vectorMagnitude(&sf::Vector2f(diffX, diffY));
+		double diffX = circumcenter->x - pointset[i]->position.x;
+		double diffY = circumcenter->y - pointset[i]->position.y;
+		//double distance = (double)Math.Sqrt(diffX * diffX + diffY * diffY);
+		double distance = Utils::vectorMagnitude(&sf::Vector2<double>(diffX, diffY));
 
 		// policz odległość wierzchołka sprawdzanego 'w' do środka okręgu.
-		float wDiffX = circumcenter->x - pointset[w]->position.x;
-		float wDiffY = circumcenter->y - pointset[w]->position.y;
-		float wDistance = Utils::vectorMagnitude(&sf::Vector2f(wDiffX, wDiffY));
+		double wDiffX = circumcenter->x - pointset[w]->position.x;
+		double wDiffY = circumcenter->y - pointset[w]->position.y;
+		double wDistance = Utils::vectorMagnitude(&sf::Vector2<double>(wDiffX, wDiffY));
 
 		// dodaj kółko do listy w razie gdybyśmy chcieli je obejrzeć na ekranie. (Nieistotne)
 		// circumcircle* c = new circumcircle(circumcenter, distance);
@@ -641,7 +640,7 @@ std::vector<Edge*> Utils::dt_bruteforce(std::vector<Vertex*>& pointset)
 }
 
 // srodek kola opisanego na trojkacie abc
-sf::Vector2f* Utils::circumCenter(sf::Vector2f& a, sf::Vector2f& b, sf::Vector2f& c)
+sf::Vector2<double>* Utils::circumCenter(sf::Vector2<double>& a, sf::Vector2<double>& b, sf::Vector2<double>& c)
 {
 	double x1 = a.x;
 	double y1 = a.y;
@@ -663,15 +662,15 @@ sf::Vector2f* Utils::circumCenter(sf::Vector2f& a, sf::Vector2f& b, sf::Vector2f
 	G = 2.0f * (A * (y3 - y2) - B * (x3 - x2));
 	if (G == 0)
 	{
-		//return sf::Vector2f(0, 0);
+		//return sf::Vector2<double>(0, 0);
 		return nullptr;
 	}
 	else
 	{
-		float Px = (D * E - B * F) / G;
-		float Py = (A * F - C * E) / G;
+		double Px = (D * E - B * F) / G;
+		double Py = (A * F - C * E) / G;
 
 		// tutaj zwraca wartość jako punkt.
-		return new sf::Vector2f(Px, Py);
+		return new sf::Vector2<double>(Px, Py);
 	}
 }

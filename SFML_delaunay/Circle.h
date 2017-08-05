@@ -12,10 +12,10 @@ public:
 	sf::Color fillColor;
 	sf::Color outlineColor;
 
-	sf::Vector2f center;
-	float radius;
+	sf::Vector2<double> center;
+	double radius;
 
 	Circle();
-	Circle(sf::Vector2f center, float radius);
+	Circle(sf::Vector2<double> center, double radius);
 	virtual void render(sf::RenderWindow *window);
 };

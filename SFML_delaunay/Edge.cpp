@@ -16,7 +16,7 @@ Edge::Edge(Vertex * v1, Vertex * v2) : Edge()
 	this->v2 = v2;
 }
 
-void Edge::setOrigin(sf::Vector2f origin)
+void Edge::setOrigin(sf::Vector2<double> origin)
 {
 	simplex_origin = origin;
 }
