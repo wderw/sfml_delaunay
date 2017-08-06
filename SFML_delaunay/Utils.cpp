@@ -9,7 +9,7 @@
 
 int Circle::redColorProgression = 0;
 
-inline bool Utils::vertexComparatorX(Vertex * A, Vertex * B)
+inline bool Utils::VertexComparatorX(Vertex * A, Vertex * B)
 {
 	if (A->position.x < B->position.x)
 	{
@@ -21,23 +21,23 @@ inline bool Utils::vertexComparatorX(Vertex * A, Vertex * B)
 	}
 }
 
-inline void Utils::sortByX(std::vector<Vertex*>& pointset)
+inline void Utils::SortByX(std::vector<Vertex*>& pointset)
 {
-	std::sort(pointset.begin(), pointset.end(), vertexComparatorX);
+	std::sort(pointset.begin(), pointset.end(), VertexComparatorX);
 }
 // funkcja sprawdza czy punkty p oraz cp leza po tej samej stronie linii
 // wyznaczanej przez wektor f
 // przypadek w ktorym punkt cp lub p leza na linii(f) moze powodowac problemy
 // todo: funkcja powinna zwracac inna wartosc niz false/true np. (1,0,-1) w zaleznosci od znaku iloczynu iloczynow skalarnych.
-inline int Utils::sameHalfspaceTest(Edge * f, Vertex * p, Vector &cp)
+inline int Utils::SameHalfspaceTest(Edge * f, Vertex * p, Vector &cp)
 {
 	Vector v(f->v2->position.x - f->v1->position.x, f->v2->position.y - f->v1->position.y);
 	Vector w(v.y, -v.x);
 
-	double result_p = Utils::dotProduct(&(p->position - f->v1->position), &w);
-	double result_cp = Utils::dotProduct(&(cp - f->v1->position), &w);
+	double resultP = w.DotProduct((p->position - f->v1->position));
+	double resultCP = w.DotProduct((cp - f->v1->position));
 
-	double result = result_p * result_cp;
+	double result = resultP * resultCP;
 	//return result;
 	
 	if (result < 0) // rozne strony linii
@@ -54,31 +54,27 @@ inline int Utils::sameHalfspaceTest(Edge * f, Vertex * p, Vector &cp)
 	}
 }
 
-inline double Utils::sameHalfspaceTestCheck(Edge * f, Vertex * p, Vector &cp)
+inline double Utils::SameHalfspaceTestCheck(Edge * f, Vertex * p, Vector &cp)
 {
 	Vector v(f->v2->position.x - f->v1->position.x, f->v2->position.y - f->v1->position.y);
 	Vector w(v.y, -v.x);
 
-	double result_p = Utils::dotProduct(&(p->position - f->v1->position), &w);
-	double result_cp = Utils::dotProduct(&(cp - f->v1->position), &w);
+	double result_p = Vector::DotProduct((p->position - f->v1->position), w);
+	double result_cp = Vector::DotProduct((cp - f->v1->position), w);
 
 	double result = result_p * result_cp;
 	return result;
 
 }
 
-inline double Utils::vectorMagnitude(Vector * vec)
-{
-	return sqrt(vec->x*vec->x + vec->y*vec->y);
-}
-
-inline Vector Utils::triangleCenterOfMass(Vertex * a, Vertex * b, Vertex * c)
+inline Vector Utils::CenterOfMass(Vertex * a, Vertex * b, Vertex * c)
 {
 	return Vector((a->position.x + b->position.x + c->position.x) / 3,
 		(a->position.y + b->position.y + c->position.y) / 3);
 }
+
 // patrz wikipedia: algorytm jarvisa
-std::vector<Edge*> Utils::convexHull(std::vector<Vertex*> &pointset)
+std::vector<Edge*> Utils::ConvexHull(std::vector<Vertex*> &pointset)
 {
 	if (pointset.size() < 3)
 	{
@@ -128,7 +124,7 @@ std::vector<Edge*> Utils::convexHull(std::vector<Vertex*> &pointset)
 		Vector v(candidate->position.x - current->position.x, candidate->position.y - current->position.y);
 
 
-		double angle = Utils::vectorAngleBetween(&u, &v);
+		double angle = Vector::AngleBetween(u, v);
 		if (angle < minAngle)
 		{
 			minAngle = angle;
@@ -156,7 +152,7 @@ std::vector<Edge*> Utils::convexHull(std::vector<Vertex*> &pointset)
 
 			Vector v(candidate->position.x - current->position.x, candidate->position.y - current->position.y);
 
-			double angle = Utils::vectorAngleBetween(&resultVector, &v);
+			double angle = Vector::AngleBetween(resultVector, v);
 			if (angle < minAngle)
 			{
 				minAngle = angle;
@@ -174,7 +170,7 @@ std::vector<Edge*> Utils::convexHull(std::vector<Vertex*> &pointset)
 	return result;
 }
 
-Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double alfa)
+Triangle* Utils::MakeSimplex(Edge * f, std::vector<Vertex*>& pointset, double alfa)
 {
 	double minDD = DBL_MAX;
 	Vertex* best = nullptr;
@@ -189,13 +185,12 @@ Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double al
 		}
 		
 		// pomin te ktore leza po zlej stronie f lub na f
-		if (Utils::sameHalfspaceTest(f, p, f->simplex_origin) >= 0)
+		if (Utils::SameHalfspaceTest(f, p, f->simplex_origin) >= 0)
 		{
 			continue;
-		}
-		
+		}		
 
-		double currentDD = Utils::delaunayDistance(f, p);
+		double currentDD = Utils::DelaunayDistance(f, p);
 
 		if ((currentDD < minDD))
 		{
@@ -206,18 +201,19 @@ Triangle* Utils::makeSimplex(Edge * f, std::vector<Vertex*>& pointset, double al
 
 	if (best != nullptr)
 	{
-		/* buduj tylko sciane */ 
+		/* buduj tylko sciane
 		if (!isIntersected(f->v1, best, alfa) && !isIntersected(f->v2,best, alfa))
 		{
 			return nullptr;
 		}
+		*/
 		
 
 		Edge *e1, *e2;
 		e1 = new Edge(f->v1, best);
 		e2 = new Edge(f->v2, best);
 						
-		Vector origin(Utils::triangleCenterOfMass(f->v1, f->v2, best));
+		Vector origin(Utils::CenterOfMass(f->v1, f->v2, best));
 		e1->setOrigin(origin);
 		e2->setOrigin(origin);		
 		
@@ -237,13 +233,13 @@ struct special_compare : public std::unary_function<Edge*, bool>
 
 	bool operator() (Edge* arg)
 	{
-		return Utils::sameEdge(arg, baseline);
+		return Utils::SameEdge(arg, baseline);
 	}
 	Edge* baseline;
 };
 
 // bezpieczna po wskazniku edge* e
-inline void Utils::updateAFL(std::list<Edge*>& AFL, Edge* e)
+inline void Utils::UpdateAFL(std::list<Edge*>& AFL, Edge* e)
 {
 	std::list<Edge*>::iterator it = std::find_if(AFL.begin(), AFL.end(), special_compare(e));
 	if (it == AFL.end())
@@ -275,13 +271,13 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset, double alfa)
 		return;
 	}
 
-	Utils::sortByX(pointset);
+	Utils::SortByX(pointset);
 
 	//double alfa = pointset[(pointset.size() / 2)]->position.x + FIRST_SIMPLEX_OFFSET_EPSILON;
 
 	Vector pos1(alfa, 0);
 	Vector pos2(alfa, 900);
-	Line* cuttingLine = new Line(sf::Vertex(Utils::to_sfvector(pos1), sf::Color::Cyan), sf::Vertex(Utils::to_sfvector(pos2), sf::Color::Cyan));
+	Line* cuttingLine = new Line(sf::Vertex(Utils::ToVector2f(pos1), sf::Color::Cyan), sf::Vertex(Utils::ToVector2f(pos2), sf::Color::Cyan));
 
 	//std::vector<Edge*> hull = Utils::convexHull(pointset);
 
@@ -322,7 +318,8 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset, double alfa)
 	for (register int i = 0; i < pointset.size(); ++i)
 	{
 		currentVertex = pointset[i];
-		currentDistance = Utils::vectorMagnitude(&(currentVertex->position - p1->position));
+		//currentDistance = Utils::VectorMagnitude(&(currentVertex->position - p1->position));
+		currentDistance = currentVertex->position.DistanceTo(p1->position);
 
 		if (currentVertex->position.x - alfa < 0 && rightSide == false)
 		{
@@ -351,10 +348,11 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset, double alfa)
 	for (register int i = 0; i < pointset.size(); ++i)
 	{
 		currentVertex = pointset[i];
-		circumcenter = Utils::circumCenter(p1->position, p2->position, currentVertex->position);
+		circumcenter = Utils::CircumCenter(p1->position, p2->position, currentVertex->position);
 		if (circumcenter != nullptr)
 		{
-			currentRadius = Utils::vectorMagnitude(&Vector(circumcenter->x - p1->position.x, circumcenter->y - p1->position.y));
+			//currentRadius = Utils::VectorMagnitude(&Vector(circumcenter->x - p1->position.x, circumcenter->y - p1->position.y));
+			currentRadius = circumcenter->DistanceTo(p1->position);
 
 			if (currentRadius < minRadius)
 			{
@@ -369,7 +367,7 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset, double alfa)
 	Edge* f2 = new Edge(p2, p3);
 	Edge* f3 = new Edge(p3, p1);
 
-	Vector centerOfMass = Utils::triangleCenterOfMass(p1, p2, p3);
+	Vector centerOfMass = Utils::CenterOfMass(p1, p2, p3);
 
 	f->setOrigin(centerOfMass);
 	f2->setOrigin(centerOfMass);
@@ -385,9 +383,9 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset, double alfa)
 	//t0->e1->setColor(sf::Color::Red);
 	//t0->e2->setColor(sf::Color::Red);
 
-	updateAFL(AFL, f);
-	updateAFL(AFL, f2);
-	updateAFL(AFL, f3);
+	UpdateAFL(AFL, f);
+	UpdateAFL(AFL, f2);
+	UpdateAFL(AFL, f3);
 
 	// ogranicznik ilosci iteracji
 	//int counter = 0;
@@ -396,27 +394,28 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset, double alfa)
 		Edge* e = AFL.back();
 		AFL.pop_back();
 
-		Triangle* t = makeSimplex(e, pointset,alfa);
+		Triangle* t = MakeSimplex(e, pointset,alfa);
 
 		if (t != nullptr)
 		{			
-			updateAFL(AFL, t->e0);
-			updateAFL(AFL, t->e1);		
+			UpdateAFL(AFL, t->e0);
+			UpdateAFL(AFL, t->e1);		
 		}
 		//counter++;
 	}
+	printf("renderables: %d \n", IRenderable::renderables.size());
 }
 
 // funkcja delaunay distance (dd) zdefiniowana w publikacji algorytmu DeWall
-inline double Utils::delaunayDistance(Edge * f, Vertex * p)
+inline double Utils::DelaunayDistance(Edge * f, Vertex * p)
 {
-	Vector* circumcenter = Utils::circumCenter(f->v1->position, f->v2->position, p->position);
+	Vector* circumcenter = Utils::CircumCenter(f->v1->position, f->v2->position, p->position);
 
 	if (circumcenter != nullptr)
 	{
-		double radius = Utils::vectorMagnitude(&Vector(circumcenter->x - p->position.x, circumcenter->y - p->position.y));
+		double radius = circumcenter->DistanceTo(p->position);
 
-		if (sameHalfspaceTest(f, p, *circumcenter) >= 0)
+		if (SameHalfspaceTest(f, p, *circumcenter) >= 0)
 		{
 			return radius;
 		}
@@ -428,33 +427,7 @@ inline double Utils::delaunayDistance(Edge * f, Vertex * p)
 	else return DBL_MAX;
 }
 
-inline Vector Utils::vectorNormalized(Vector * original)
-{
-	double length = Utils::vectorMagnitude(original);
-	Vector normalized(original->x / length, original->y / length);
-	return normalized;
-}
-
-inline void Utils::vectorNormalize(Vector * modified)
-{
-	double length = Utils::vectorMagnitude(modified);
-	modified->x /= length;
-	modified->y /= length;
-}
-
-inline double Utils::dotProduct(Vector * v1, Vector * v2)
-{
-	return (v1->x*v2->x) + (v1->y*v2->y);
-}
-
-inline double Utils::vectorAngleBetween(Vector * v1, Vector * v2)
-{
-	Vector v1_n = Utils::vectorNormalized(v1);
-	Vector v2_n = Utils::vectorNormalized(v2);
-	return acos(Utils::dotProduct(&v1_n, &v2_n));
-}
-
-std::string Utils::vectorDescription(Vector * vec, char * description)
+std::string Utils::VectorDescription(Vector * vec, char * description)
 {
 	std::string result = std::string(description) +
 		std::string(": [x:") + std::to_string(vec->x) +
@@ -463,7 +436,7 @@ std::string Utils::vectorDescription(Vector * vec, char * description)
 
 	return result;
 }
-std::string Utils::vectorDescription(sf::Vector2f * vec, char * description)
+std::string Utils::VectorDescription(sf::Vector2f * vec, char * description)
 {
 	std::string result = std::string(description) +
 		std::string(": [x:") + std::to_string(vec->x) +
@@ -473,7 +446,7 @@ std::string Utils::vectorDescription(sf::Vector2f * vec, char * description)
 	return result;
 }
 
-inline bool Utils::containsEdge(std::vector<Edge*>& edges, Edge* f)
+inline bool Utils::ContainsEdge(std::vector<Edge*>& edges, Edge* f)
 {
 	for (int i = 0; i < edges.size(); ++i)
 	{
@@ -485,7 +458,7 @@ inline bool Utils::containsEdge(std::vector<Edge*>& edges, Edge* f)
 	return false;
 }
 
-inline bool Utils::sameEdge(Edge* A, Edge* B)
+inline bool Utils::SameEdge(Edge* A, Edge* B)
 {
 	if (A == B) return true;
 
@@ -499,7 +472,7 @@ inline bool Utils::sameEdge(Edge* A, Edge* B)
 	}
 }
 
-inline bool Utils::isIntersected(Vertex* v1, Vertex* v2, double alfa)
+inline bool Utils::IsIntersected(Vertex* v1, Vertex* v2, double alfa)
 {
 	if (v1->position.x < alfa && v2->position.x >= alfa)
 	{
@@ -515,7 +488,7 @@ inline bool Utils::isIntersected(Vertex* v1, Vertex* v2, double alfa)
 	}
 }
 
-void  Utils::evaluateTriangle(int i, int j, int k, std::vector<Vertex*>& pointset)
+void  Utils::EvaluateTriangle(int i, int j, int k, std::vector<Vertex*>& pointset)
 {
 	// Indeks 'w' oznacza aktualnie sprawdzany wierzchołek.
 	// Sprawdzamy czy znajduje się on wewnątrz koła opisanego na i,j,k.
@@ -530,19 +503,18 @@ void  Utils::evaluateTriangle(int i, int j, int k, std::vector<Vertex*>& pointse
 		// Funkcja Circumcenter
 		// zwraca środek okręgu opisanego na trójkącie ijk i wrzuca rezultat do zmiennej
 		// circumcenter.
-		Vector* circumcenter = Utils::circumCenter(pointset[i]->position, pointset[j]->position, pointset[k]->position);
+		Vector* circumcenter = Utils::CircumCenter(pointset[i]->position, pointset[j]->position, pointset[k]->position);
 		if (circumcenter == nullptr) return;
 
 		// policz promień koła opisanego na trójkącie ijk.
 		double diffX = circumcenter->x - pointset[i]->position.x;
 		double diffY = circumcenter->y - pointset[i]->position.y;
-		//double distance = (double)Math.Sqrt(diffX * diffX + diffY * diffY);
-		double distance = Utils::vectorMagnitude(&Vector(diffX, diffY));
+		double distance = Vector(diffX, diffY).Magnitude();
 
 		// policz odległość wierzchołka sprawdzanego 'w' do środka okręgu.
 		double wDiffX = circumcenter->x - pointset[w]->position.x;
 		double wDiffY = circumcenter->y - pointset[w]->position.y;
-		double wDistance = Utils::vectorMagnitude(&Vector(wDiffX, wDiffY));
+		double wDistance = Vector(wDiffX, wDiffY).Magnitude();
 
 		// dodaj kółko do listy w razie gdybyśmy chcieli je obejrzeć na ekranie. (Nieistotne)
 		// circumcircle* c = new circumcircle(circumcenter, distance);
@@ -569,7 +541,7 @@ std::vector<Edge*> Utils::dt_bruteforce(std::vector<Vertex*>& pointset)
 		{
 			for (int k = j + 1; k < pointset.size(); ++k)
 			{
-				Utils::evaluateTriangle(i, j, k, pointset);
+				Utils::EvaluateTriangle(i, j, k, pointset);
 			}
 		}
 	}
@@ -577,26 +549,17 @@ std::vector<Edge*> Utils::dt_bruteforce(std::vector<Vertex*>& pointset)
 }
 
 // srodek kola opisanego na trojkacie abc
-inline Vector* Utils::circumCenter(Vector& a, Vector& b, Vector& c)
+inline Vector* Utils::CircumCenter(Vector& a, Vector& b, Vector& c)
 {
-	double x1 = a.x;
-	double y1 = a.y;
-
-	double x2 = b.x;
-	double y2 = b.y;
-
-	double x3 = c.x;
-	double y3 = c.y;
-
 	double A, B, C, D, E, F, G;
 
-	A = x2 - x1;
-	B = y2 - y1;
-	C = x3 - x1;
-	D = y3 - y1;
-	E = A * (x1 + x2) + B * (y1 + y2);
-	F = C * (x1 + x3) + D * (y1 + y3);
-	G = 2.0 * (A * (y3 - y2) - B * (x3 - x2));
+	A = b.x - a.x;
+	B = b.y - a.y;
+	C = c.x - a.x;
+	D = c.y - a.y;
+	E = A * (a.x + b.x) + B * (a.y + b.y);
+	F = C * (a.x + c.x) + D * (a.y + c.y);
+	G = 2.0 * (A * (c.y - b.y) - B * (c.x - b.x));
 	if (G == 0)
 	{
 		//return Vector(0, 0);

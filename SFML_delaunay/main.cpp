@@ -49,24 +49,17 @@ int main()
 		Vertex* newVertex = new Vertex(rand() % ((int)window.getSize().x - 120) + 60 + quake, rand() % ((int)window.getSize().y - 120) + 60 + quake);
 	}
 
-	//sf::View view = window.getView();
-	//view.zoom(0.05f);
-	//window.setView(view);
-	//view.zoom(0.24f);
-	//view.move(245, -140);
-
 	// zmierz czas wykonania
 	sf::Clock clock;
 	clock.restart();
 
 	Utils::dt_dewall(Vertex::vertices,(double) 400);
-	//Utils::dt_dewall(Vertex::vertices, (double)420);
-	//Utils::dt_dewall(Vertex::vertices, (double)440);
 
 	sf::Time time = clock.restart();
 	double timeMilliseconds = time.asMilliseconds();
 	//Utils::msgbox(std::to_string(timeMilliseconds));
-	printf("elapsed time: %lf\nseed: %d\n", timeMilliseconds,randomSeed);
+
+	printf("elapsed time: %lf", timeMilliseconds);
 	//utils::msgbox(std::to_string(e.size()));
 	//Utils::dt_bruteforce(Vertex::vertices);
 
@@ -162,7 +155,5 @@ int main()
 		window.draw(mousePosText);
 		window.display();
 	}
-
-
 	return 0;
 }
