@@ -5,9 +5,6 @@ Edge::Edge()
 {
 	v1 = nullptr;
 	v2 = nullptr;
-
-	color1 = sf::Color(CUSTOM_WHITE_ALPHA);
-	color2 = sf::Color(CUSTOM_WHITE_ALPHA);
 }
 
 Edge::Edge(Vertex * v1, Vertex * v2) : Edge()
@@ -16,28 +13,14 @@ Edge::Edge(Vertex * v1, Vertex * v2) : Edge()
 	this->v2 = v2;
 }
 
-void Edge::setOrigin(sf::Vector2<double> origin)
+void Edge::setOrigin(Vector origin)
 {
 	simplex_origin = origin;
 }
-
-void Edge::setColor1(sf::Color c)
-{
-	color1 = c;
-}
-void Edge::setColor2(sf::Color c)
-{
-	color2 = c;
-}
-void Edge::setColor(sf::Color c)
-{
-	color1 = c;
-	color2 = c;
-}
-
+/*
 void Edge::render(sf::RenderWindow * window)
 {
-	/*
+	
 	sf::Vertex line[] =
 	{
 	sf::Vertex(sf::Vector2f(v1->position),color1),
@@ -46,6 +29,5 @@ void Edge::render(sf::RenderWindow * window)
 	
 
 	window->draw(line, 2, sf::Lines);
-	*/
-
 }
+*/

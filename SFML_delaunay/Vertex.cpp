@@ -1,4 +1,5 @@
 #include "Vertex.h"
+#include "Utils.h"
 
 std::vector<Vertex*> Vertex::vertices;
 
@@ -10,17 +11,6 @@ Vertex::Vertex(double x, double y) : Vertex()
 {
 	position.x = x;
 	position.y = y;
-
-	fillColor = sf::Color::Transparent;
-	outlineColor = sf::Color(CUSTOM_RED);
-
-	shape.setOutlineThickness(1.0f);
-
-	this->shape.setOutlineColor(outlineColor);
-	this->shape.setFillColor(fillColor);
-
-	this->shape.setRadius(1.0f);
-	this->shape.setPosition(sf::Vector2f(position));
 }
 
 inline void Vertex::moveTo(double x, double y)
@@ -29,7 +19,7 @@ inline void Vertex::moveTo(double x, double y)
 	this->position.y = y;
 }
 
-inline void Vertex::moveTo(sf::Vector2<double> newPos)
+inline void Vertex::moveTo(Vector newPos)
 {
 	this->position = newPos;
 }

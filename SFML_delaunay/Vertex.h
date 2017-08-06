@@ -2,22 +2,20 @@
 
 #include "common.h"
 #include "IRenderable.h"
+#include "Vector.h"
 
 class Vertex// : public IRenderable
 {
 public:
 	static std::vector<Vertex*> vertices;
 
-	sf::Vector2<double> position;
-	sf::CircleShape shape;
-	sf::Color fillColor;
-	sf::Color outlineColor;
+	Vector position;
 
 	Vertex();
 	Vertex(double, double);
 
-	inline void moveTo(double, double);
-	inline void moveTo(sf::Vector2<double>);
+	void moveTo(double, double);
+	void moveTo(Vector);
 	void moveBy(double, double);
 
 	//virtual void render(sf::RenderWindow *window);

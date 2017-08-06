@@ -59,7 +59,9 @@ int main()
 	sf::Clock clock;
 	clock.restart();
 
-	Utils::dt_dewall(Vertex::vertices);
+	Utils::dt_dewall(Vertex::vertices,(double) 400);
+	//Utils::dt_dewall(Vertex::vertices, (double)420);
+	//Utils::dt_dewall(Vertex::vertices, (double)440);
 
 	sf::Time time = clock.restart();
 	double timeMilliseconds = time.asMilliseconds();
@@ -134,46 +136,6 @@ int main()
 					}
 					break;
 				}
-				case sf::Event::MouseMoved:
-				{
-					/* wyswietl pozycje kursora */
-					sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-					std::string s_MousePos = Utils::vectorDescription(&sf::Vector2<double>(mousePos), "Mouse");
-					mousePosText.setString(s_MousePos);
-
-					// podswietl wierzcholki bliskie kursora 
-					// uwaga: ultra nieefektywne 				
-					for (int i = 0; i < IRenderable::renderables.size(); ++i)
-					{
-						IRenderable* pRenderable = IRenderable::renderables[i];
-						Vertex* highlightCandidate = dynamic_cast<Vertex*>(pRenderable);
-
-						if (highlightCandidate != nullptr)
-						{
-							sf::Vector2<double> difference = sf::Vector2<double>(mousePos) - highlightCandidate->position;
-							double distance = Utils::vectorMagnitude(&difference);
-							if (distance < VERTEX_SNAP_DISTANCE)
-							{
-								// highlight
-								highlightCandidate->shape.setRadius(4.5f);
-								highlightCandidate->shape.setOutlineThickness(4.5f);
-								highlightCandidate->outlineColor = sf::Color(CUSTOM_GREEN);
-
-								std::string sVertexInfo = Utils::vectorDescription(&sf::Vector2<double>(highlightCandidate->position), "\nCurrent vertex");
-								mousePosText.setString(mousePosText.getString() + sVertexInfo);
-							}
-							else
-							{
-								// unhighlight
-								highlightCandidate->shape.setRadius(1.0f);
-								highlightCandidate->shape.setOutlineThickness(1.0f);
-								highlightCandidate->outlineColor = sf::Color(CUSTOM_RED);
-							}
-						}
-					}
-					break;
-				}
-				
 				default:
 				{
 					break;

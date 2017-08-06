@@ -22,7 +22,7 @@
 #define FIRST_SIMPLEX_OFFSET_EPSILON 0.0000000000001
 
 
-#define VERTEX_COUNT 2000
+#define VERTEX_COUNT 10000
 #define ITER_COUNT 1300
 
 //706 iteracja = odbicie od dolnej sciany
@@ -39,3 +39,4 @@ class Edge;
 class Circle;
 class Line;
 class Triangle;
+class Vector;
