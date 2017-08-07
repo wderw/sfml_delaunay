@@ -26,7 +26,6 @@ public:
 	// sprawdza czy punkt cp i p naleza do tej samej polplaszczyzny
 	// wyznaczanej przez krawedz f oraz punkt p.
 	static int SameHalfspaceTest(Edge* f, Vertex* p, Vector& cp);
-	static double SameHalfspaceTestCheck(Edge * f, Vertex * p, Vector &cp);
 
 	// srodek ciezkosci trojkata
 	static Vector CenterOfMass(Vertex* a, Vertex* b, Vertex* c);

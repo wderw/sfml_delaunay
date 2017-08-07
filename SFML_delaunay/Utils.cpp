@@ -54,18 +54,6 @@ inline int Utils::SameHalfspaceTest(Edge * f, Vertex * p, Vector &cp)
 	}
 }
 
-inline double Utils::SameHalfspaceTestCheck(Edge * f, Vertex * p, Vector &cp)
-{
-	Vector v(f->v2->position.x - f->v1->position.x, f->v2->position.y - f->v1->position.y);
-	Vector w(v.y, -v.x);
-
-	double result_p = Vector::DotProduct((p->position - f->v1->position), w);
-	double result_cp = Vector::DotProduct((cp - f->v1->position), w);
-
-	double result = result_p * result_cp;
-	return result;
-
-}
 
 inline Vector Utils::CenterOfMass(Vertex * a, Vertex * b, Vertex * c)
 {

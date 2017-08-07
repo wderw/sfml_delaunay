@@ -127,6 +127,11 @@ int main()
 						view.move(moveValue,0);
 						window.setView(view);
 					}
+					else if (event.key.code == sf::Keyboard::Escape)
+					{
+						window.close();
+						return 0;
+					}
 					break;
 				}
 				default:
