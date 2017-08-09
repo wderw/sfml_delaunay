@@ -21,6 +21,8 @@ public:
 
 	static bool VertexComparatorX(Vertex* A, Vertex* B);
 	static void SortByX(std::vector<Vertex*>& pointset);
+	static bool VertexComparatorY(Vertex* A, Vertex* B);
+	static void SortByY(std::vector<Vertex*>& pointset);
 
 	// 2. operacje wektorowe
 	// sprawdza czy punkt cp i p naleza do tej samej polplaszczyzny
@@ -42,9 +44,18 @@ public:
 	static void EvaluateTriangle(int i, int j, int k, std::vector<Vertex*>& pointset);
 	static Vector* CircumCenter(Vector& a, Vector& b, Vector& c);
 	static std::vector<Edge*> dt_bruteforce(std::vector<Vertex*> &pointset);
-	static void dt_dewall(std::vector<Vertex*>& pointset, double alfa);
+	static void dt_dewall(std::vector<Vertex*>& pointset, std::list<Edge*>& AFL, int);
 	static double DelaunayDistance(Edge* f, Vertex* p);
 	static std::vector<Edge*> ConvexHull(std::vector<Vertex*> &pointset);
-	static Triangle* MakeSimplex(Edge* f, std::vector<Vertex*>& pointset,double alfa);
+	static Triangle* MakeSimplex(Edge* f, std::vector<Vertex*>& pointset,double alfa, bool (*)(Vertex*, Vertex*, double) );
 	static void UpdateAFL(std::list<Edge*>& AFL, Edge*);
+
+	static int WhichSideOfAlpha(Edge* f, double alfa);
+	static int WhichSideOfAlphaY(Edge* f, double alfa);
+	static void UpdateAFLBySide(std::list<Edge*>& AFL, std::list<Edge*>& AFL1, std::list<Edge*>& AFL2, Edge*, double alfa, int (*f)(Edge*, double));
+	static Triangle* MakeFirstSimplex(std::vector<Vertex*>& pointset, double alfa);
+	static void Utils::PointsetPartitionX(std::vector<Vertex*>& pointset, double alfa, std::vector<Vertex*>& P1, std::vector<Vertex*>& P2);
+	static void Utils::PointsetPartitionY(std::vector<Vertex*>& pointset, double alfa, std::vector<Vertex*>& P1, std::vector<Vertex*>& P2);
+	static bool IsIntersectedY(Vertex* v1, Vertex* v2, double alfa);
 };
+

@@ -1,6 +1,10 @@
 ﻿  Utils.cpp
-e:\delaunay\1\sfml_delaunay\sfml_delaunay\utils.cpp(422): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
-  e:\delaunay\1\sfml_delaunay\sfml_delaunay\utils.cpp(422): note: consider using '%zd' in the format string
-e:\delaunay\1\sfml_delaunay\sfml_delaunay\utils.cpp(661): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+e:\delaunay\1\sfml_delaunay\sfml_delaunay\utils.cpp(480): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+  e:\delaunay\1\sfml_delaunay\sfml_delaunay\utils.cpp(480): note: consider using '%zd' in the format string
+  Generating Code...
+  Skipping... (no relevant changes detected)
+  main.cpp
+  Vertex.cpp
+  Triangle.cpp
   SFML_delaunay.vcxproj -> E:\delaunay\1\sfml_delaunay\x64\Debug\SFML_delaunay.exe
   SFML_delaunay.vcxproj -> E:\delaunay\1\sfml_delaunay\x64\Debug\SFML_delaunay.pdb (Partial PDB)

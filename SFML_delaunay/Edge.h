@@ -9,6 +9,8 @@ public:
 
 	Vector simplex_origin;
 
+	sf::Color color;
+
 	Edge();
 	Edge(Vertex *v1, Vertex *v2);
 

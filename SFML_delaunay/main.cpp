@@ -53,7 +53,9 @@ int main()
 	sf::Clock clock;
 	clock.restart();
 
-	Utils::dt_dewall(Vertex::vertices,(double) 400);
+	int recurrentCounter = 0;
+	std::list<Edge*> AFL;
+	Utils::dt_dewall(Vertex::vertices, AFL, recurrentCounter);
 
 	sf::Time time = clock.restart();
 	double timeMilliseconds = time.asMilliseconds();

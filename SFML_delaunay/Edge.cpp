@@ -11,6 +11,7 @@ Edge::Edge(Vertex * v1, Vertex * v2) : Edge()
 {
 	this->v1 = v1;
 	this->v2 = v2;
+	color = sf::Color::White;
 }
 
 void Edge::setOrigin(Vector origin)

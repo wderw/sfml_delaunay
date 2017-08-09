@@ -22,20 +22,20 @@ void Triangle::render(sf::RenderWindow * window)
 {
 	sf::Vertex line0[] =
 	{
-		sf::Vertex(Utils::ToVector2f(e0->v1->position),sf::Color::White),
-		sf::Vertex(Utils::ToVector2f(e0->v2->position),sf::Color::White)
+		sf::Vertex(Utils::ToVector2f(e0->v1->position),this->e0->color),
+		sf::Vertex(Utils::ToVector2f(e0->v2->position),this->e0->color)
 	};
 
 	sf::Vertex line1[] =
 	{
-		sf::Vertex(Utils::ToVector2f(e1->v1->position),sf::Color::White),
-		sf::Vertex(Utils::ToVector2f(e1->v2->position),sf::Color::White)
+		sf::Vertex(Utils::ToVector2f(e1->v1->position),this->e1->color),
+		sf::Vertex(Utils::ToVector2f(e1->v2->position),this->e1->color)
 	};
 
 	sf::Vertex line2[] =
 	{
-		sf::Vertex(Utils::ToVector2f(e2->v1->position),sf::Color::White),
-		sf::Vertex(Utils::ToVector2f(e2->v2->position),sf::Color::White)
+		sf::Vertex(Utils::ToVector2f(e2->v1->position),this->e2->color),
+		sf::Vertex(Utils::ToVector2f(e2->v2->position),this->e2->color)
 	};
 
 	window->draw(line0, 2, sf::Lines);
