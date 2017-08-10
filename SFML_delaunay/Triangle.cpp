@@ -42,3 +42,4 @@ void Triangle::render(sf::RenderWindow * window)
 	window->draw(line1, 2, sf::Lines);
 	window->draw(line2, 2, sf::Lines);
 }
+

@@ -47,7 +47,7 @@ public:
 	static void dt_dewall(std::vector<Vertex*>& pointset, std::list<Edge*>& AFL, int);
 	static double DelaunayDistance(Edge* f, Vertex* p);
 	static std::vector<Edge*> ConvexHull(std::vector<Vertex*> &pointset);
-	static Triangle* MakeSimplex(Edge* f, std::vector<Vertex*>& pointset,double alfa, bool (*)(Vertex*, Vertex*, double) );
+	static Triangle* MakeSimplex(Edge* f, std::vector<Vertex*>& pointset,double alfa, bool (*IsIntersected)(Vertex*, Vertex*, double) );
 	static void UpdateAFL(std::list<Edge*>& AFL, Edge*);
 
 	static int WhichSideOfAlpha(Edge* f, double alfa);

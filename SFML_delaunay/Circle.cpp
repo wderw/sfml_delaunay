@@ -23,7 +23,7 @@ Circle::Circle(sf::Vector2<double> center, double radius) : Circle()
 	this->shape.setOutlineColor(outlineColor);
 	this->shape.setFillColor(fillColor);
 
-	this->shape.setRadius(radius);
+	this->shape.setRadius((float)radius);
 	this->shape.setPosition(sf::Vector2f(center));
 
 	this->shape.setPointCount(100);

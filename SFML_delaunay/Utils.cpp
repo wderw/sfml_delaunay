@@ -36,6 +36,7 @@ inline bool Utils::VertexComparatorY(Vertex * A, Vertex * B)
 inline void Utils::SortByX(std::vector<Vertex*>& pointset)
 {
 	std::sort(pointset.begin(), pointset.end(), VertexComparatorX);
+	
 }
 
 inline void Utils::SortByY(std::vector<Vertex*>& pointset)
@@ -175,7 +176,7 @@ std::vector<Edge*> Utils::ConvexHull(std::vector<Vertex*> &pointset)
 	return result;
 }
 
-Triangle* Utils::MakeSimplex(Edge * f, std::vector<Vertex*>& pointset, double alfa, bool(*IsIntersected)(Vertex*, Vertex*, double))
+inline Triangle* Utils::MakeSimplex(Edge * f, std::vector<Vertex*>& pointset, double alfa, bool(*IsIntersected)(Vertex*, Vertex*, double))
 {
 	double minDD = DBL_MAX;
 	Vertex* best = nullptr;
@@ -188,12 +189,12 @@ Triangle* Utils::MakeSimplex(Edge * f, std::vector<Vertex*>& pointset, double al
 		{
 			continue;
 		}
-		
+
 		// pomin te ktore leza po zlej stronie f lub na f
 		if (Utils::SameHalfspaceTest(f, p, f->simplex_origin) >= 0)
 		{
 			continue;
-		}		
+		}
 
 		double currentDD = Utils::DelaunayDistance(f, p);
 
@@ -207,29 +208,29 @@ Triangle* Utils::MakeSimplex(Edge * f, std::vector<Vertex*>& pointset, double al
 	if (best != nullptr)
 	{
 		// buduj tylko sciane
-		if (!IsIntersected(f->v1, best, alfa) && !IsIntersected(f->v2,best, alfa))
+		if (!IsIntersected(f->v1, best, alfa) && !IsIntersected(f->v2, best, alfa))
 		{
 
-			
+
 			return nullptr;
 
-			
+
 		}
-		
-		
+
+
 
 		Edge *e1, *e2;
 		e1 = new Edge(f->v1, best);
 		e2 = new Edge(f->v2, best);
 
-		
-						
+
+
 		Vector origin(Utils::CenterOfMass(f->v1, f->v2, best));
 		e1->setOrigin(origin);
-		e2->setOrigin(origin);		
-		
+		e2->setOrigin(origin);
+
 		Triangle* t = new Triangle(e1, e2, f);
-		
+
 		return t;
 	}
 	else
@@ -443,13 +444,42 @@ void Utils::dt_dewall(std::vector<Vertex*>& pointset, std::list<Edge*>& AFL, int
 		//counter++;
 	}
 
-	//if (recurrentCounter >= 7) return;
+	//if (recurrentCounter >= 12) return;
+
+	if (recurrentCounter < 2)
+	{
+		recurrentCounter += 1;
+
+		std::vector<std::thread> threads;
+
+
+		threads.push_back(std::thread(Utils::dt_dewall, P1, AFL1, recurrentCounter));
+		threads.push_back(std::thread(Utils::dt_dewall, P2, AFL2, recurrentCounter));
+
+		for (auto& th : threads)
+			th.join();
+	}
+	else
+	{
+		recurrentCounter += 1;
+		if (!AFL1.empty()) Utils::dt_dewall(P1, AFL1, recurrentCounter);
+		if (!AFL2.empty()) Utils::dt_dewall(P2, AFL2, recurrentCounter);
+	}
+	/*
 	recurrentCounter += 1;
 
-	if (!AFL1.empty()) Utils::dt_dewall(P1, AFL1, recurrentCounter);
-	if (!AFL2.empty()) Utils::dt_dewall(P2, AFL2, recurrentCounter);
+	std::vector<std::thread> threads;
+
+
+	threads.push_back(std::thread(Utils::dt_dewall, P1, AFL1, recurrentCounter));
+	threads.push_back(std::thread(Utils::dt_dewall, P2, AFL2, recurrentCounter));
+
+	for (auto& th : threads)
+		th.join();
+		*/
 	
-	printf("renderables: %d \n", IRenderable::renderables.size());
+	
+	//printf("renderables: %d \n", IRenderable::renderables.size());
 }
 
 

@@ -16,7 +16,7 @@ int main()
 	printf("seed: %d\n", randomSeed);
 	//srand(1531);
 	//srand(1501925017);
-
+	//srand(1502364490);
 	// zaladuj fonty
 	sf::Font font;
 	if (!font.loadFromFile("cour.ttf"))
